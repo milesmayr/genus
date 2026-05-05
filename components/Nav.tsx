@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { AnimatePresence, motion } from 'framer-motion'
+import { usePathname } from 'next/navigation'
 
 const DESKTOP_LINKS = [
   { href: '/#how-it-works', label: 'How it works' },
@@ -13,9 +14,10 @@ const DESKTOP_LINKS = [
   { href: '/about', label: 'About' },
 ]
 
-const MOBILE_LINKS = [
-  { href: '/apply', label: 'Apply as a creator', primary: true },
-  { href: '/agents', label: 'Browse agents', primary: true },
+const MOBILE_NAV_LINKS = [
+  { href: '/#how-it-works', label: 'How it works', primary: true },
+  { href: '/agents', label: 'All agents', primary: true },
+  { href: '/about', label: 'About', primary: true },
   { href: '/agents', label: 'Sign in', primary: false },
 ]
 
@@ -23,6 +25,8 @@ export default function Nav() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [showWordmark, setShowWordmark] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const pathname = usePathname()
+  const isHomepage = pathname === '/'
 
   useEffect(() => {
     const handler = () => {
@@ -52,15 +56,15 @@ export default function Nav() {
         }}
       >
         <div className="flex items-center justify-between px-5 md:px-10 h-16 max-w-7xl mx-auto">
-          {/* Wordmark — fades in after hero logo scrolls away */}
+          {/* Wordmark — fades in after hero logo scrolls away (homepage), always visible elsewhere */}
           <Link
             href="/"
             className="flex items-center"
             aria-label="Genus home"
             style={{
-              opacity: showWordmark ? 1 : 0,
+              opacity: isHomepage ? (showWordmark ? 1 : 0) : 1,
               transition: 'opacity 0.35s ease',
-              pointerEvents: showWordmark ? 'auto' : 'none',
+              pointerEvents: isHomepage ? (showWordmark ? 'auto' : 'none') : 'auto',
             }}
           >
             <Wordmark />
@@ -147,9 +151,9 @@ export default function Nav() {
               </button>
             </div>
 
-            {/* Links — audience-first */}
+            {/* Links */}
             <nav className="flex flex-col px-5 pt-8 flex-1">
-              {MOBILE_LINKS.map(({ href, label, primary }, i) => (
+              {MOBILE_NAV_LINKS.map(({ href, label, primary }, i) => (
                 <motion.div
                   key={label}
                   initial={{ opacity: 0, x: -16 }}
@@ -184,6 +188,27 @@ export default function Nav() {
                 </motion.div>
               ))}
             </nav>
+
+            {/* Bottom CTA */}
+            <motion.div
+              className="px-5 pb-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.25 }}
+            >
+              <Link
+                href="/apply"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-center w-full py-4 rounded-sm text-sm font-medium"
+                style={{
+                  fontFamily: 'var(--font-dmSans)',
+                  backgroundColor: 'var(--yellow)',
+                  color: 'var(--ink)',
+                }}
+              >
+                Apply as a creator &rarr;
+              </Link>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
