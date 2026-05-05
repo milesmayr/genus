@@ -7,46 +7,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import AgentCard from '@/components/AgentCard'
 import AgentModal from '@/components/AgentModal'
 import { EASE_OUT_EXPO } from '@/lib/motion'
+import { AGENTS } from '@/lib/agents'
 
-const SUGGESTED = [
-  {
-    agentName: 'The Strategist',
-    discipline: 'Brand Strategy',
-    creatorName: 'Alex HM Smith',
-    creatorSlug: 'alex-hm-smith',
-    agentSlug: 'the-strategist',
-    rating: 4.9,
-    sessionCount: 847,
-    satisfactionPct: 98,
-    quote:
-      "Strategy isn't about knowing the answer. It's about asking the question no one else thought to ask.",
-    isAvailable: true,
-  },
-  {
-    agentName: 'The Director',
-    discipline: 'Creative Direction',
-    creatorName: 'Ben Ditto',
-    creatorSlug: 'ben-ditto',
-    agentSlug: 'the-director',
-    rating: 4.8,
-    sessionCount: 623,
-    satisfactionPct: 96,
-    quote: 'Good creative direction is invisible. You feel it before you understand it.',
-    isAvailable: true,
-  },
-  {
-    agentName: 'The Designer',
-    discipline: 'UX / Service Design',
-    creatorName: 'John Maeda',
-    creatorSlug: 'john-maeda',
-    agentSlug: 'the-designer',
-    rating: 4.7,
-    sessionCount: 1204,
-    satisfactionPct: 95,
-    quote: 'Simplicity is about subtracting the obvious and adding the meaningful.',
-    isAvailable: true,
-  },
-]
+const SUGGESTED = AGENTS.filter((a) =>
+  ['the-strategist', 'the-director', 'the-alchemist'].includes(a.slug)
+).sort((a, b) =>
+  ['the-strategist', 'the-director', 'the-alchemist'].indexOf(a.slug) -
+  ['the-strategist', 'the-director', 'the-alchemist'].indexOf(b.slug)
+)
 
 type ModalState = { slug: string; agentImage?: string; creatorAvatar?: string } | null
 
@@ -305,8 +273,19 @@ export default function MatchSection() {
               transition={{ duration: 0.4, delay: 0.1 + i * 0.07, ease: EASE_OUT_EXPO }}
             >
               <AgentCard
-                {...agent}
-                onClick={() => setModal({ slug: agent.agentSlug })}
+                agentName={agent.agentName}
+                discipline={agent.discipline}
+                creatorName={agent.creatorName}
+                creatorSlug={agent.creatorSlug}
+                agentSlug={agent.slug}
+                rating={agent.rating}
+                sessionCount={agent.sessionCount}
+                satisfactionPct={agent.satisfactionPct}
+                quote={agent.quote}
+                isAvailable={agent.isAvailable}
+                agentImage={agent.agentImage}
+                creatorAvatar={agent.creatorAvatar}
+                onClick={() => setModal({ slug: agent.slug })}
               />
             </motion.div>
           ))}
