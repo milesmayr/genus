@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap');
+@import "tailwindcss";
+
+:root {
+  --white: #ffffff;
+  --off: #f8f8f5;
+  --ink: #111110;
+  --ink2: #222220;
+  --yellow: #e8b820;
+  --yellow2: #f5cc40;
+  --yellow-pale: #fef9e6;
+  --rule: #e8e6e0;
+  --mid: #666460;
+  --muted: #aaa8a2;
+  --surface: #f2f1ed;
+  --green: #1a6640;
+  --red: #c84820;
+}
+
+@theme inline {
+  --font-archivoblack: 'Archivo Black', sans-serif;
+  --font-dmSans: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-white: var(--white);
+  --color-off: var(--off);
+  --color-ink: var(--ink);
+  --color-ink2: var(--ink2);
+  --color-yellow: var(--yellow);
+  --color-yellow2: var(--yellow2);
+  --color-yellow-pale: var(--yellow-pale);
+  --color-rule: var(--rule);
+  --color-mid: var(--mid);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-green: var(--green);
+  --color-red: var(--red);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--white);
+  color: var(--ink);
+  overflow-x: hidden;
+  max-width: 100vw;
+}
