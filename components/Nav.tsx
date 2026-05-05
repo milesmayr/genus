@@ -9,13 +9,13 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 
 const DESKTOP_LINKS = [
-  { href: '/#how-it-works', label: 'How it works' },
+  { href: '/how-it-works', label: 'How it works' },
   { href: '/agents', label: 'All agents' },
   { href: '/about', label: 'About' },
 ]
 
 const MOBILE_NAV_LINKS = [
-  { href: '/#how-it-works', label: 'How it works', primary: true },
+  { href: '/how-it-works', label: 'How it works', primary: true },
   { href: '/agents', label: 'All agents', primary: true },
   { href: '/about', label: 'About', primary: true },
   { href: '/agents', label: 'Sign in', primary: false },
