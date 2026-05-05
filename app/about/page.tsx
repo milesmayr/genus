@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import HowItWorksSection from '@/components/home/HowItWorksSection'
 import { EASE_OUT_EXPO } from '@/lib/motion'
 
 // ─── Data ────────────────────────────────────────────────────────────────────
@@ -59,7 +58,6 @@ export default function AboutPage() {
       <HeroSection />
       <MissionBreaker />
       <WhatWeBelieve />
-      <HowItWorksSection />
       <WhoWeAre />
       <AsSeenIn />
       <ContactBreaker />
