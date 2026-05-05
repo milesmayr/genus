@@ -156,7 +156,6 @@ export default function AgentsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.45, delay: i * 0.05 }}
                 >
-                  {/* [PLACEHOLDER] */}
                   <AgentCard
                     agentName={agent.agentName}
                     discipline={agent.discipline}
@@ -168,6 +167,8 @@ export default function AgentsPage() {
                     satisfactionPct={agent.satisfactionPct}
                     quote={agent.quote}
                     isAvailable={agent.isAvailable}
+                    agentImage={agent.agentImage}
+                    creatorAvatar={agent.creatorAvatar}
                   />
                 </motion.div>
               ))}

@@ -18,6 +18,8 @@ export interface Agent {
   bio: string[]
   methodology: string[]
   isAvailable: boolean
+  agentImage?: string
+  creatorAvatar?: string
   /* [PLACEHOLDER] */
   clients: string[]
   collaboratorSlugs: string[]
@@ -31,6 +33,8 @@ export const AGENTS: Agent[] = [
     discipline: 'Brand Strategy',
     creatorName: 'Alex HM Smith',
     creatorSlug: 'alex-hm-smith',
+    agentImage: '/agents/Agent=1.png',
+    creatorAvatar: '/People/Alex.jpg',
     rating: 4.9,
     sessionCount: 847,
     satisfactionPct: 98,
@@ -54,6 +58,8 @@ export const AGENTS: Agent[] = [
     discipline: 'Creative Direction',
     creatorName: 'Ben Ditto',
     creatorSlug: 'ben-ditto',
+    agentImage: '/agents/Agent=2.png',
+    creatorAvatar: '/People/Ben.jpg',
     rating: 4.8,
     sessionCount: 623,
     satisfactionPct: 96,
@@ -76,6 +82,8 @@ export const AGENTS: Agent[] = [
     discipline: 'Screenwriting',
     creatorName: 'Francesca Sloane',
     creatorSlug: 'francesca-sloane',
+    agentImage: '/agents/Agent=3.png',
+    creatorAvatar: '/People/Francesca.jpg',
     rating: 4.9,
     sessionCount: 412,
     satisfactionPct: 97,
@@ -98,6 +106,8 @@ export const AGENTS: Agent[] = [
     discipline: 'UX / Service Design',
     creatorName: 'John Maeda',
     creatorSlug: 'john-maeda',
+    agentImage: '/agents/Agent=4.png',
+    creatorAvatar: '/People/John.png',
     rating: 4.7,
     sessionCount: 1204,
     satisfactionPct: 95,
@@ -120,6 +130,7 @@ export const AGENTS: Agent[] = [
     discipline: 'UX / Service Design',
     creatorName: 'Priya Nair',
     creatorSlug: 'priya-nair',
+    agentImage: '/agents/Agent=5.png',
     rating: 4.8,
     sessionCount: 389,
     satisfactionPct: 94,
@@ -142,6 +153,7 @@ export const AGENTS: Agent[] = [
     discipline: 'Brand Strategy',
     creatorName: 'Marta Kowalski',
     creatorSlug: 'marta-kowalski',
+    agentImage: '/agents/Agent=6.png',
     rating: 4.6,
     sessionCount: 731,
     satisfactionPct: 93,
@@ -164,6 +176,7 @@ export const AGENTS: Agent[] = [
     discipline: 'Creative Direction',
     creatorName: 'James Osei',
     creatorSlug: 'james-osei',
+    agentImage: '/agents/Agent=7.png',
     rating: 4.7,
     sessionCount: 518,
     satisfactionPct: 96,
@@ -186,6 +199,7 @@ export const AGENTS: Agent[] = [
     discipline: 'UX / Service Design',
     creatorName: 'Sofia Bernardini',
     creatorSlug: 'sofia-bernardini',
+    agentImage: '/agents/Agent=8.png',
     rating: 4.9,
     sessionCount: 276,
     satisfactionPct: 99,
@@ -201,6 +215,54 @@ export const AGENTS: Agent[] = [
     isAvailable: true,
     clients: ['Wikipedia', 'Gov.uk', 'Salesforce', 'Adobe', 'Zendesk'],
     collaboratorSlugs: ['the-designer', 'the-researcher'],
+  },
+  {
+    slug: 'the-alchemist',
+    agentName: 'The Alchemist',
+    discipline: 'Creative Direction',
+    creatorName: 'Rick Rubin',
+    creatorSlug: 'rick-rubin',
+    agentImage: '/agents/Agent=9.png',
+    creatorAvatar: '/People/Rick.jpg',
+    rating: 4.9,
+    sessionCount: 304,
+    satisfactionPct: 99,
+    quote: "The best work happens when you remove everything that doesn't belong.",
+    bio: [
+      'Decades producing records that redefined what records could be. The skill is not technical — it is the ability to hear what something wants to become and remove every obstacle between the work and that truth.',
+      'This agent carries that reductive clarity into any creative process. It asks the hard questions early, so the work is not defended but discovered.',
+    ],
+    methodology: [
+      'Most creative problems are addition problems disguised as subtraction problems. Before adding anything, this agent asks what can be taken away without the work losing its soul.',
+      'The room is always more important than the brief. Environment, pressure, and the dynamics between collaborators shape the work as much as any creative decision. This agent helps you design the conditions for the best work to happen.',
+    ],
+    isAvailable: true,
+    clients: ['Adele', 'Kanye West', 'Johnny Cash', 'Metallica', 'Red Hot Chili Peppers'],
+    collaboratorSlugs: ['the-director', 'the-writer'],
+  },
+  {
+    slug: 'the-provocateur',
+    agentName: 'The Provocateur',
+    discipline: 'Creative Direction',
+    creatorName: 'Pablo Rochat',
+    creatorSlug: 'pablo-rochat',
+    agentImage: '/agents/Agent=10.png',
+    creatorAvatar: '/People/Pablo.jpg',
+    rating: 4.8,
+    sessionCount: 217,
+    satisfactionPct: 96,
+    quote: 'The most interesting ideas live just past the edge of comfort.',
+    bio: [
+      'Built a reputation on ideas that made people stop scrolling — not through loudness, but through unexpected angles and a refusal to make the obvious choice.',
+      'This agent brings that instinct for the surprising into your creative process: challenging assumptions, finding the idea beneath the idea, and pushing work past the first acceptable answer.',
+    ],
+    methodology: [
+      'The brief is a starting point, not a ceiling. This agent always asks: what would you make if you were not afraid of the response? Then it works backwards from there.',
+      'Discomfort is a signal, not a problem. When an idea makes the room nervous, that is worth investigating before it is rejected.',
+    ],
+    isAvailable: true,
+    clients: ['Apple', 'Spotify', 'Nike', 'Google', 'Instagram'],
+    collaboratorSlugs: ['the-director', 'the-alchemist'],
   },
 ]
 

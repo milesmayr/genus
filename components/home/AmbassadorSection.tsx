@@ -10,9 +10,9 @@ const CREATORS = [
     discipline: 'Brand Strategy',
     agentName: 'The Strategist',
     agentSlug: 'the-strategist',
-    quote:
-      "Strategy isn't about knowing the answer. It's about asking the question no one else thought to ask.",
+    quote: "Strategy isn't about knowing the answer. It's about asking the question no one else thought to ask.",
     clients: ['Nike', 'Airbnb', 'Stripe', 'Figma'],
+    creatorAvatar: '/People/Alex.jpg',
   },
   {
     creatorName: 'Ben Ditto',
@@ -21,6 +21,7 @@ const CREATORS = [
     agentSlug: 'the-director',
     quote: 'Good creative direction is invisible. You feel it before you understand it.',
     clients: ['Apple', 'Dior', 'Spotify', 'Prada'],
+    creatorAvatar: '/People/Ben.jpg',
   },
   {
     creatorName: 'Francesca Sloane',
@@ -29,6 +30,7 @@ const CREATORS = [
     agentSlug: 'the-writer',
     quote: 'Character is revealed in the moments people try to hide.',
     clients: ['Netflix', 'HBO', 'A24', 'BBC'],
+    creatorAvatar: '/People/Francesca.jpg',
   },
   {
     creatorName: 'John Maeda',
@@ -37,6 +39,25 @@ const CREATORS = [
     agentSlug: 'the-designer',
     quote: 'Simplicity is about subtracting the obvious and adding the meaningful.',
     clients: ['Google', 'Microsoft', 'IDEO', 'Patagonia'],
+    creatorAvatar: '/People/John.png',
+  },
+  {
+    creatorName: 'Rick Rubin',
+    discipline: 'Creative Direction',
+    agentName: 'The Alchemist',
+    agentSlug: 'the-alchemist',
+    quote: 'The best work happens when you remove everything that doesn\'t belong.',
+    clients: ['Adele', 'Kanye West', 'Johnny Cash', 'Metallica'],
+    creatorAvatar: '/People/Rick.jpg',
+  },
+  {
+    creatorName: 'Pablo Rochat',
+    discipline: 'Creative Direction',
+    agentName: 'The Provocateur',
+    agentSlug: 'the-provocateur',
+    quote: 'The most interesting ideas live just past the edge of comfort.',
+    clients: ['Apple', 'Spotify', 'Nike', 'Google'],
+    creatorAvatar: '/People/Pablo.jpg',
   },
 ]
 
