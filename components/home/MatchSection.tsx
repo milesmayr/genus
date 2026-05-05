@@ -266,7 +266,7 @@ export default function MatchSection() {
         >
           {SUGGESTED.map((agent, i) => (
             <motion.div
-              key={agent.agentSlug}
+              key={agent.slug}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
