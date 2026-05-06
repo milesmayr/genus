@@ -114,50 +114,16 @@ function Dot({ dark = false }: { dark?: boolean }) {
   )
 }
 
-// ─── Placeholder types ────────────────────────────────────────────────────────
+// ─── Placeholder components ───────────────────────────────────────────────────
+// Three distinct visual textures:
+//   EditorialSlot  → hatched diagonal pattern  (photographic / human moments)
+//   ProductSlot    → fine grid pattern          (UI, diagrams, structured data)
+//   [no component] → literal whitespace         (typography-only sections)
 
-// Generic illustration slot
-function IllustrationPlaceholder({
-  label,
-  ratio = '2 / 1',
-  dark = false,
-}: {
-  label: string
-  ratio?: string
-  dark?: boolean
-}) {
-  return (
-    <div
-      className="w-full flex items-center justify-center"
-      style={{
-        aspectRatio: ratio,
-        border: `2px dashed ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.12)'}`,
-        borderRadius: '3px',
-        backgroundColor: dark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
-      }}
-    >
-      <span
-        style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: '9px',
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
-          textAlign: 'center',
-          padding: '0 16px',
-        }}
-      >
-        [ {label} ]
-      </span>
-    </div>
-  )
-}
-
-// Photographic / texture slot — sells the research-studio feel
-function TexturePlaceholder({
+function EditorialSlot({
   label,
   sub,
-  ratio = '4 / 3',
+  ratio = '16 / 6',
   dark = false,
 }: {
   label: string
@@ -165,14 +131,15 @@ function TexturePlaceholder({
   ratio?: string
   dark?: boolean
 }) {
+  const stripe = dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)'
   return (
     <div
-      className="w-full flex flex-col items-center justify-center gap-2"
+      className="w-full flex flex-col items-center justify-center gap-2 px-6"
       style={{
         aspectRatio: ratio,
-        border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)'}`,
+        backgroundImage: `repeating-linear-gradient(45deg, ${stripe} 0px, ${stripe} 1px, transparent 1px, transparent 9px)`,
         borderRadius: '2px',
-        backgroundColor: dark ? 'rgba(255,255,255,0.03)' : 'var(--off)',
+        border: `1px solid ${dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'}`,
       }}
     >
       <span
@@ -182,9 +149,10 @@ function TexturePlaceholder({
           letterSpacing: '0.14em',
           textTransform: 'uppercase',
           color: dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)',
+          textAlign: 'center',
         }}
       >
-        Photo · {label}
+        Editorial / Textural — {label}
       </span>
       {sub && (
         <span
@@ -193,6 +161,8 @@ function TexturePlaceholder({
             fontSize: '11px',
             fontWeight: 300,
             color: dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.18)',
+            textAlign: 'center',
+            maxWidth: '360px',
           }}
         >
           {sub}
@@ -202,84 +172,107 @@ function TexturePlaceholder({
   )
 }
 
-// Product screenshot / wireframe mockup — annotated
-function MockupPlaceholder({
-  title,
+function ProductSlot({
+  label,
+  sub,
   items,
+  ratio,
   dark = false,
+  tall = false,
 }: {
-  title: string
-  items: string[]
+  label: string
+  sub?: string
+  items?: string[]
+  ratio?: string
   dark?: boolean
+  tall?: boolean
 }) {
+  const gridLine = dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'
   return (
     <div
       className="w-full"
       style={{
-        border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.12)'}`,
-        borderRadius: '4px',
-        overflow: 'hidden',
+        aspectRatio: ratio,
+        minHeight: tall ? '320px' : undefined,
+        backgroundImage: `linear-gradient(${gridLine} 1px, transparent 1px), linear-gradient(90deg, ${gridLine} 1px, transparent 1px)`,
+        backgroundSize: '22px 22px',
+        borderRadius: '3px',
+        border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`,
+        padding: '20px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
       }}
     >
-      {/* Mock chrome bar */}
       <div
-        className="flex items-center gap-1.5 px-4 py-3"
-        style={{ borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'}`, backgroundColor: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '8px',
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          color: dark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)',
+        }}
       >
-        {[0, 1, 2].map((i) => (
-          <span
-            key={i}
-            style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)', display: 'block' }}
-          />
-        ))}
-        <span
-          className="ml-3"
-          style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.1em', color: dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', textTransform: 'uppercase' }}
-        >
-          {title}
-        </span>
-        <span
-          className="ml-auto"
-          style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', color: dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)', letterSpacing: '0.08em', textTransform: 'uppercase' }}
-        >
-          Screenshot / Live preview
-        </span>
+        Product / Structural — {label}
       </div>
-      <div className="p-5 flex flex-col gap-2.5">
-        {items.map((item, i) => (
-          <div key={i} className="flex items-start gap-3">
-            <span
-              style={{
-                width: 20,
-                height: 20,
-                borderRadius: '2px',
-                backgroundColor: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                fontFamily: 'var(--font-mono)',
-                fontSize: '7px',
-                color: dark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)',
-              }}
+      {sub && (
+        <p
+          style={{
+            fontFamily: 'var(--font-dmSans)',
+            fontSize: '12px',
+            fontWeight: 300,
+            color: dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.22)',
+            lineHeight: 1.6,
+            maxWidth: '480px',
+          }}
+        >
+          {sub}
+        </p>
+      )}
+      {items && items.length > 0 && (
+        <ul className="flex flex-col gap-2 mt-1">
+          {items.map((item, i) => (
+            <li
+              key={i}
+              className="flex items-start gap-2"
+              style={{ fontFamily: 'var(--font-dmSans)', fontSize: '11px', fontWeight: 300, color: dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.22)', lineHeight: 1.55 }}
             >
-              {i + 1}
-            </span>
-            <span
-              style={{
-                fontFamily: 'var(--font-dmSans)',
-                fontSize: '12px',
-                fontWeight: 300,
-                color: dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.4)',
-                lineHeight: 1.55,
-              }}
-            >
+              <span style={{ flexShrink: 0, color: dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.2)' }}>–</span>
               {item}
-            </span>
-          </div>
-        ))}
-      </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
+  )
+}
+
+// ─── Small abstract pricing diagrams ─────────────────────────────────────────
+
+function WaveLine({ dark = false }: { dark?: boolean }) {
+  const stroke = dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)'
+  return (
+    <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+      <path d="M 0 18 Q 6 6 12 14 Q 18 22 24 10 Q 30 0 36 8 Q 42 16 48 4" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function FlatBar({ dark = false }: { dark?: boolean }) {
+  const stroke = dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)'
+  return (
+    <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+      <line x1="0" y1="11" x2="48" y2="11" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function FloorAndPeak({ dark = false }: { dark?: boolean }) {
+  const stroke = dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)'
+  return (
+    <svg width="48" height="22" viewBox="0 0 48 22" fill="none">
+      <path d="M 0 16 H 16 L 20 4 L 24 16 H 48" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 
@@ -289,11 +282,7 @@ function PillToggle({ view, setView }: { view: View; setView: (v: View) => void 
   return (
     <div
       className="inline-flex"
-      style={{
-        backgroundColor: 'rgba(255,255,255,0.06)',
-        borderRadius: '4px',
-        padding: '4px',
-      }}
+      style={{ backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '4px', padding: '4px' }}
     >
       {(['creators', 'clients'] as View[]).map((v) => (
         <button
@@ -337,7 +326,6 @@ export default function HowItWorksPage() {
 
   return (
     <main>
-      {/* Sticky toggle — slides in once header scrolls away */}
       <AnimatePresence>
         {showStickyToggle && (
           <motion.div
@@ -374,7 +362,7 @@ export default function HowItWorksPage() {
   )
 }
 
-// ─── Page header ──────────────────────────────────────────────────────────────
+// ─── Page header — typography-only, toggle is the headline ───────────────────
 
 function PageHeader({
   view,
@@ -389,7 +377,6 @@ function PageHeader({
     creators: 'A system built around how you actually think — shaped with you, owned by you.',
     clients: 'Real expertise, structured into agents you can actually work with.',
   }
-
   return (
     <section
       ref={headerRef}
@@ -397,14 +384,9 @@ function PageHeader({
       style={{ backgroundColor: 'var(--ink)' }}
     >
       <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: EASE_OUT_EXPO }}
-        >
+        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: EASE_OUT_EXPO }}>
           <Label light>System</Label>
         </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -423,16 +405,9 @@ function PageHeader({
           <button
             onClick={() => setView('creators')}
             style={{
-              fontFamily: 'inherit',
-              fontSize: 'inherit',
-              letterSpacing: 'inherit',
-              lineHeight: 'inherit',
+              fontFamily: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit', lineHeight: 'inherit',
               color: view === 'creators' ? 'var(--yellow)' : 'rgba(255,255,255,0.22)',
-              transition: 'color 0.18s ease',
-              cursor: 'pointer',
-              background: 'none',
-              border: 'none',
-              padding: 0,
+              transition: 'color 0.18s ease', cursor: 'pointer', background: 'none', border: 'none', padding: 0,
             }}
           >
             Creators
@@ -441,22 +416,14 @@ function PageHeader({
           <button
             onClick={() => setView('clients')}
             style={{
-              fontFamily: 'inherit',
-              fontSize: 'inherit',
-              letterSpacing: 'inherit',
-              lineHeight: 'inherit',
+              fontFamily: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit', lineHeight: 'inherit',
               color: view === 'clients' ? 'var(--yellow)' : 'rgba(255,255,255,0.22)',
-              transition: 'color 0.18s ease',
-              cursor: 'pointer',
-              background: 'none',
-              border: 'none',
-              padding: 0,
+              transition: 'color 0.18s ease', cursor: 'pointer', background: 'none', border: 'none', padding: 0,
             }}
           >
             Clients
           </button>
         </motion.h1>
-
         <AnimatePresence mode="wait">
           <motion.p
             key={view}
@@ -464,14 +431,7 @@ function PageHeader({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.25, ease: EASE_OUT_EXPO }}
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              fontSize: '16px',
-              fontWeight: 300,
-              color: 'rgba(255,255,255,0.4)',
-              lineHeight: 1.6,
-              maxWidth: '480px',
-            }}
+            style={{ fontFamily: 'var(--font-dmSans)', fontSize: '16px', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, maxWidth: '480px' }}
           >
             {subtitles[view]}
           </motion.p>
@@ -500,7 +460,7 @@ function CreatorView() {
   )
 }
 
-// C1 — Belief ─────────────────────────────────────────────────────────────────
+// C1 — Belief — TYPOGRAPHY-ONLY ───────────────────────────────────────────────
 
 function CreatorBelief() {
   return (
@@ -515,13 +475,7 @@ function CreatorBelief() {
           <Divider />
           <div
             className="flex flex-col gap-4"
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              fontSize: '17px',
-              fontWeight: 300,
-              color: 'var(--mid)',
-              lineHeight: 1.8,
-            }}
+            style={{ fontFamily: 'var(--font-dmSans)', fontSize: '17px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.8 }}
           >
             <p>
               The best people in any field aren&rsquo;t following a process.
@@ -532,7 +486,7 @@ function CreatorBelief() {
           </div>
         </motion.div>
 
-        {/* Pull-quote breaker — typography only, no image */}
+        {/* Pull-quote breaker — typography only */}
         <motion.div
           {...fadeUp(0.1)}
           className="py-14 md:py-20"
@@ -558,36 +512,28 @@ function CreatorBelief() {
   )
 }
 
-// C2 — Workshop ───────────────────────────────────────────────────────────────
+// C2 — Workshop — EDITORIAL / TEXTURAL ────────────────────────────────────────
 
 const WORKSHOP_PHASES = [
   {
-    num: '01',
-    week: 'Week one',
-    title: 'Discover',
+    num: '01', week: 'Week one', title: 'Discover',
     body: 'Two afternoons of conversation. We map your references, your instincts, the moves you make without thinking. The first surprise is usually your own.',
-    texture: 'Pinned reference card',
+    texture: 'Discover phase — scanned page of handwritten mapping notes, slightly rotated, partial visibility',
   },
   {
-    num: '02',
-    week: 'Week two',
-    title: 'Challenge',
+    num: '02', week: 'Week two', title: 'Challenge',
     body: 'Custom exercises built on what we heard. This-or-that decisions. Live critiques. Edge cases. Where do you draw the line, and why?',
-    texture: 'Transcript snippet',
+    texture: 'Challenge phase — two reference images pinned side-by-side with a marker arrow between them',
   },
   {
-    num: '03',
-    week: 'Week three',
-    title: 'Refine',
+    num: '03', week: 'Week three', title: 'Refine',
     body: 'Pressure-testing the system against real briefs. You see how it reasons. You correct it. It learns the why, not just the what.',
-    texture: 'Scanned notes',
+    texture: 'Refine phase — transcript fragment with one line highlighted, the rest faded',
   },
   {
-    num: '04',
-    week: 'Ongoing',
-    title: 'Calibrate',
-    body: 'The system stays in dialogue with you. Live feedback, comparison rounds, refinement. It doesn’t drift — because you’re still in the loop.',
-    texture: 'Calibration log',
+    num: '04', week: 'Ongoing', title: 'Calibrate',
+    body: "The system stays in dialogue with you. Live feedback, comparison rounds, refinement. It doesn't drift — because you're still in the loop.",
+    texture: 'Calibrate phase — annotated calibration log or screenshot fragment',
   },
 ]
 
@@ -595,7 +541,7 @@ function CreatorWorkshop() {
   return (
     <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
       <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="mb-16">
+        <motion.div {...fadeUp(0)} className="mb-14">
           <Label>The process</Label>
           <SectionHeading size="md">
             We build it with you.
@@ -619,35 +565,38 @@ function CreatorWorkshop() {
           </div>
         </motion.div>
 
+        {/* Section opener image — editorial / textural */}
+        <motion.div {...fadeUp(0.06)} className="mb-14">
+          <EditorialSlot
+            label="Workshop atmosphere — photographic, editorial, human"
+            sub="A studio table with notebooks and references, or hands annotating a printed brief. Black-and-white or muted colour. Commissioned, not stock."
+            ratio="16 / 7"
+          />
+        </motion.div>
+
         {/* Four phases */}
         <div className="flex flex-col gap-0">
           {WORKSHOP_PHASES.map((phase, i) => (
             <motion.div
               key={phase.num}
               {...fadeUp(i * 0.07)}
-              className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-8 py-10"
+              className="grid grid-cols-1 md:grid-cols-[1fr_180px] gap-8 py-10"
               style={{ borderTop: '1px solid var(--rule)' }}
             >
               <div>
                 <div className="flex items-baseline gap-4 mb-4">
                   <span
                     style={{
-                      fontFamily: 'var(--font-archivoblack)',
-                      fontSize: '32px',
-                      color: 'var(--yellow)',
-                      letterSpacing: '-0.04em',
-                      lineHeight: 1,
+                      fontFamily: 'var(--font-archivoblack)', fontSize: '32px',
+                      color: 'var(--yellow)', letterSpacing: '-0.04em', lineHeight: 1,
                     }}
                   >
                     {phase.num}
                   </span>
                   <span
                     style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '9px',
-                      letterSpacing: '0.12em',
-                      textTransform: 'uppercase',
-                      color: 'var(--muted)',
+                      fontFamily: 'var(--font-mono)', fontSize: '9px',
+                      letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)',
                     }}
                   >
                     {phase.week}
@@ -655,30 +604,16 @@ function CreatorWorkshop() {
                 </div>
                 <h3
                   className="mb-3"
-                  style={{
-                    fontFamily: 'var(--font-archivoblack)',
-                    fontSize: '22px',
-                    color: 'var(--ink)',
-                    letterSpacing: '-0.03em',
-                  }}
+                  style={{ fontFamily: 'var(--font-archivoblack)', fontSize: '22px', color: 'var(--ink)', letterSpacing: '-0.03em' }}
                 >
                   {phase.title}
                 </h3>
-                <p
-                  style={{
-                    fontFamily: 'var(--font-dmSans)',
-                    fontSize: '15px',
-                    fontWeight: 300,
-                    color: 'var(--mid)',
-                    lineHeight: 1.7,
-                    maxWidth: '520px',
-                  }}
-                >
+                <p style={{ fontFamily: 'var(--font-dmSans)', fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.7, maxWidth: '520px' }}>
                   {phase.body}
                 </p>
               </div>
               <div className="hidden md:block self-center">
-                <TexturePlaceholder label={phase.texture} ratio="4 / 3" />
+                <EditorialSlot label={phase.texture} ratio="4 / 3" />
               </div>
             </motion.div>
           ))}
@@ -688,34 +623,18 @@ function CreatorWorkshop() {
         <motion.div
           {...fadeUp(0.1)}
           className="mt-14 px-7 py-8"
-          style={{
-            borderLeft: '2px solid var(--yellow)',
-            backgroundColor: 'white',
-          }}
+          style={{ borderLeft: '2px solid var(--yellow)', backgroundColor: 'white' }}
         >
           <p
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              fontSize: '16px',
-              fontWeight: 300,
-              color: 'var(--mid)',
-              lineHeight: 1.7,
-              fontStyle: 'italic',
-            }}
+            style={{ fontFamily: 'var(--font-dmSans)', fontSize: '16px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.7, fontStyle: 'italic' }}
           >
             &ldquo;I learned things about how I work that I&rsquo;d never put into words before.&rdquo;
           </p>
           <p
             className="mt-3"
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '9px',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'var(--yellow)',
-            }}
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--yellow)' }}
           >
-            [Creator name, discipline] — placeholder until first creator is live
+            Creator quote + portrait — placeholder until first creator is live
           </p>
         </motion.div>
       </div>
@@ -723,11 +642,11 @@ function CreatorWorkshop() {
   )
 }
 
-// C3 — What gets built ────────────────────────────────────────────────────────
+// C3 — What gets built — PRODUCT / STRUCTURAL (animated diagram) ───────────────
+
+const SIGNAL_INPUTS = ['References', 'Process', 'Taste', 'Decisions', 'Critique', 'Edge cases']
 
 function CreatorSystem() {
-  const inputs = ['References', 'Process', 'Taste', 'Decisions', 'Critique', 'Edge cases']
-
   return (
     <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--ink)' }}>
       <div className="max-w-5xl mx-auto">
@@ -749,67 +668,66 @@ function CreatorSystem() {
           </p>
         </motion.div>
 
-        {/* Signal diagram */}
-        <motion.div {...fadeUp(0.1)} className="mb-10">
-          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-6 md:gap-0">
-            {/* Input signals */}
-            <div className="flex flex-col justify-center gap-3 md:mr-8">
-              {inputs.map((input, i) => (
+        {/* Signal diagram — editorial line work, staggered pulse on arrows */}
+        <motion.div {...fadeUp(0.1)} className="mb-12">
+          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-6 md:gap-0 py-10 px-8 md:px-12"
+            style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            {/* Input labels */}
+            <div className="flex flex-col justify-center gap-[18px] md:mr-10">
+              {SIGNAL_INPUTS.map((input, i) => (
                 <div key={input} className="flex items-center gap-3">
                   <span
                     style={{
-                      fontFamily: 'var(--font-dmSans)',
-                      fontSize: '13px',
-                      fontWeight: 300,
-                      color: 'rgba(255,255,255,0.45)',
-                      minWidth: '90px',
-                      textAlign: 'right',
+                      fontFamily: 'var(--font-dmSans)', fontSize: '13px', fontWeight: 300,
+                      color: 'rgba(255,255,255,0.4)', minWidth: '88px', textAlign: 'right',
                     }}
                   >
                     {input}
                   </span>
-                  <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '12px' }}>→</span>
+                  {/* Pulsing arrow */}
+                  <motion.span
+                    animate={{ opacity: [0.15, 0.8, 0.15] }}
+                    transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.32, ease: 'easeInOut' }}
+                    style={{ color: 'rgba(255,200,0,0.6)', fontSize: '11px', letterSpacing: '-0.02em' }}
+                  >
+                    ──→
+                  </motion.span>
                 </div>
               ))}
             </div>
-            {/* Centre block */}
+
+            {/* Central node — subtle pulse glow */}
             <div className="flex items-center">
-              <div
+              <motion.div
+                animate={{ boxShadow: ['0 0 0px rgba(255,200,0,0)', '0 0 24px rgba(255,200,0,0.12)', '0 0 0px rgba(255,200,0,0)'] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                 className="flex flex-col items-center justify-center px-8 py-6"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,200,0,0.25)',
                   borderRadius: '3px',
-                  minWidth: '140px',
+                  minWidth: '130px',
                 }}
               >
                 <span
                   style={{
-                    fontFamily: 'var(--font-archivoblack)',
-                    fontSize: '13px',
-                    color: 'var(--yellow)',
-                    letterSpacing: '-0.01em',
-                    textAlign: 'center',
-                    lineHeight: 1.4,
+                    fontFamily: 'var(--font-archivoblack)', fontSize: '13px',
+                    color: 'var(--yellow)', letterSpacing: '-0.01em', textAlign: 'center', lineHeight: 1.4,
                   }}
                 >
                   GENUS
                   <br />
                   SYSTEM
                 </span>
-              </div>
+              </motion.div>
             </div>
           </div>
         </motion.div>
 
         <motion.div {...fadeUp(0.15)}>
           <p
-            style={{
-              fontFamily: 'var(--font-archivoblack)',
-              fontSize: 'clamp(18px, 2.5vw, 28px)',
-              color: 'rgba(255,255,255,0.6)',
-              letterSpacing: '-0.02em',
-            }}
+            style={{ fontFamily: 'var(--font-archivoblack)', fontSize: 'clamp(18px, 2.5vw, 28px)', color: 'rgba(255,255,255,0.6)', letterSpacing: '-0.02em' }}
           >
             Not a replacement for you.{' '}
             <span style={{ color: 'white' }}>An extension of how you think.</span>
@@ -820,7 +738,7 @@ function CreatorSystem() {
   )
 }
 
-// C4 — Critique loop ──────────────────────────────────────────────────────────
+// C4 — Critique loop — PRODUCT / STRUCTURAL ───────────────────────────────────
 
 const LOOP_SEQUENCE = [0, 1, 2, 3, 2, 3, 2, 3, 4]
 const LOOP_STEPS = ['Brief', 'Draft', 'Critique', 'Refine', 'Deliver']
@@ -828,51 +746,47 @@ const LOOP_STEPS = ['Brief', 'Draft', 'Critique', 'Refine', 'Deliver']
 function CritiqueLoopVisual() {
   const [seqIdx, setSeqIdx] = useState(0)
   const active = LOOP_SEQUENCE[seqIdx]
-  const isLooping = seqIdx >= 2 && seqIdx <= 7 && active >= 2 && active <= 3
+  const isLooping = seqIdx >= 2 && seqIdx <= 7 && (active === 2 || active === 3)
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setSeqIdx((i) => (i + 1) % LOOP_SEQUENCE.length)
+      setSeqIdx((i) => {
+        // Pause at end for ~2s before restarting (2000ms / 820ms ≈ 2.4 ticks, use 2)
+        if (i === LOOP_SEQUENCE.length - 1) return 0
+        return i + 1
+      })
     }, 820)
     return () => clearInterval(timer)
   }, [])
 
   return (
-    <div className="flex flex-wrap items-center gap-2 md:gap-0">
+    <div className="flex flex-wrap items-center gap-2 md:gap-1">
       {LOOP_STEPS.map((step, i) => {
         const isActive = active === i
         const isLoopStep = i === 2 || i === 3
         return (
-          <div key={step} className="flex items-center gap-2 md:gap-0">
+          <div key={step} className="flex items-center gap-1 md:gap-1">
             <motion.span
               animate={{
-                color: isActive ? 'var(--ink)' : 'rgba(255,255,255,0.3)',
+                color: isActive ? 'var(--ink)' : isLoopStep && isLooping ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.25)',
                 backgroundColor: isActive ? 'var(--yellow)' : 'transparent',
               }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.22 }}
               style={{
                 fontFamily: 'var(--font-archivoblack)',
-                fontSize: 'clamp(15px, 2.2vw, 22px)',
+                fontSize: 'clamp(15px, 2vw, 20px)',
                 letterSpacing: '-0.02em',
                 padding: '4px 10px',
                 borderRadius: '3px',
                 display: 'inline-block',
-                border: `1px solid ${isActive ? 'var(--yellow)' : isLoopStep && isLooping ? 'rgba(255,255,255,0.2)' : 'transparent'}`,
+                border: `1px solid ${isActive ? 'var(--yellow)' : isLoopStep && isLooping ? 'rgba(255,255,255,0.15)' : 'transparent'}`,
+                whiteSpace: 'nowrap',
               }}
             >
               {step}
             </motion.span>
             {i < LOOP_STEPS.length - 1 && (
-              <span
-                style={{
-                  color: 'rgba(255,255,255,0.15)',
-                  fontSize: '14px',
-                  margin: '0 4px',
-                  display: 'inline-block',
-                }}
-              >
-                →
-              </span>
+              <span style={{ color: 'rgba(255,255,255,0.12)', fontSize: '13px', margin: '0 2px' }}>→</span>
             )}
           </div>
         )
@@ -884,14 +798,8 @@ function CritiqueLoopVisual() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="ml-4"
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '9px',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'var(--yellow)',
-            }}
+            className="ml-3"
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--yellow)' }}
           >
             ↺ critique loop
           </motion.span>
@@ -922,93 +830,49 @@ function CreatorCritiqueLoop() {
           </p>
         </motion.div>
 
-        {/* Animated loop visual */}
-        <motion.div {...fadeUp(0.08)} className="mb-16 p-6 md:p-10" style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.06)' }}>
+        {/* Animated loop diagram */}
+        <motion.div
+          {...fadeUp(0.08)}
+          className="mb-14 p-7 md:p-10"
+          style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div
+            className="mb-5"
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)' }}
+          >
+            Product / Structural — animated process diagram, loop cycles 2–3× before resolving to Deliver
+          </div>
           <CritiqueLoopVisual />
         </motion.div>
 
-        {/* Before / after example */}
-        <motion.div {...fadeUp(0.12)} className="mb-6">
+        {/* Before / after cards */}
+        <motion.div {...fadeUp(0.12)} className="mb-4">
           <div
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '9px',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.25)',
-              marginBottom: '16px',
-            }}
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)', marginBottom: '14px' }}
           >
             Same brief. Two responses.
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Generic AI */}
             <div
               className="p-6"
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.04)',
-                borderRadius: '3px',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
+              style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.06)' }}
             >
-              <div
-                className="mb-4"
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '8px',
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.2)',
-                }}
-              >
+              <div className="mb-4" style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.18)' }}>
                 Generic AI
               </div>
-              <p
-                style={{
-                  fontFamily: 'var(--font-dmSans)',
-                  fontSize: '14px',
-                  fontWeight: 300,
-                  color: 'rgba(255,255,255,0.35)',
-                  lineHeight: 1.7,
-                  fontStyle: 'italic',
-                }}
-              >
+              <p style={{ fontFamily: 'var(--font-dmSans)', fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.3)', lineHeight: 1.7, fontStyle: 'italic' }}>
                 &ldquo;Here are five potential directions for the campaign, ranging from minimalist to bold...&rdquo;
               </p>
             </div>
-            {/* Genus agent */}
             <div
               className="p-6"
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.07)',
-                borderRadius: '3px',
-                border: '1px solid rgba(255,200,0,0.2)',
-              }}
+              style={{ backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: '3px', border: '1px solid rgba(255,200,0,0.2)' }}
             >
-              <div
-                className="mb-4"
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '8px',
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: 'var(--yellow)',
-                }}
-              >
+              <div className="mb-4" style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--yellow)' }}>
                 Genus agent — [Expert name]
               </div>
-              <p
-                style={{
-                  fontFamily: 'var(--font-dmSans)',
-                  fontSize: '14px',
-                  fontWeight: 300,
-                  color: 'rgba(255,255,255,0.65)',
-                  lineHeight: 1.7,
-                  fontStyle: 'italic',
-                }}
-              >
-                &ldquo;I&rsquo;d push the editorial direction, not the typographic one. The type approach leans on a trend that&rsquo;ll date by Q3 — I&rsquo;ve seen this exact treatment three times this year.
-                The editorial route holds longer and gives the brand somewhere to grow into.&rdquo;
+              <p style={{ fontFamily: 'var(--font-dmSans)', fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, fontStyle: 'italic' }}>
+                &ldquo;I&rsquo;d push the editorial direction, not the typographic one. The type approach leans on a trend that&rsquo;ll date by Q3 — I&rsquo;ve seen this exact treatment three times this year. The editorial route holds longer and gives the brand somewhere to grow into.&rdquo;
               </p>
             </div>
           </div>
@@ -1018,25 +882,13 @@ function CreatorCritiqueLoop() {
   )
 }
 
-// C5 — Protection and control ─────────────────────────────────────────────────
+// C5 — Protection — PRODUCT / STRUCTURAL (load-bearing screenshot) ────────────
 
 const PROTECTION_PILLARS = [
-  {
-    label: 'Separated',
-    body: 'Your layer is structurally distinct from any base model. It doesn’t get absorbed.',
-  },
-  {
-    label: 'Attributed',
-    body: 'Every session traces back to your system. You see what was generated, for whom, and when.',
-  },
-  {
-    label: 'Controlled',
-    body: 'Pause it, refine it, retire it. One switch.',
-  },
-  {
-    label: 'Transparent',
-    body: 'A live dashboard of usage, performance, and earnings.',
-  },
+  { label: 'Separated', body: "Your layer is structurally distinct from any base model. It doesn't get absorbed." },
+  { label: 'Attributed', body: 'Every session traces back to your system. You see what was generated, for whom, and when.' },
+  { label: 'Controlled', body: 'Pause it, refine it, retire it. One switch.' },
+  { label: 'Transparent', body: 'A live dashboard of usage, performance, and earnings.' },
 ]
 
 function CreatorProtection() {
@@ -1047,78 +899,68 @@ function CreatorProtection() {
           <Label>Protection and control</Label>
           <SectionHeading size="md">Your expertise stays yours.</SectionHeading>
           <Divider />
-          <p
-            className="max-w-lg"
-            style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
-          >
+          <p className="max-w-lg" style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}>
             You see how it&rsquo;s used. You decide who uses it. You can pause or pull it at any time.
           </p>
         </motion.div>
 
-        {/* Four pillars */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-14">
           {PROTECTION_PILLARS.map((p, i) => (
             <motion.div
               key={p.label}
               {...fadeUp(i * 0.07)}
               className="p-6"
-              style={{
-                backgroundColor: 'var(--off)',
-                borderRadius: '3px',
-                border: '1px solid var(--rule)',
-              }}
+              style={{ backgroundColor: 'var(--off)', borderRadius: '3px', border: '1px solid var(--rule)' }}
             >
-              <div
-                className="mb-3"
-                style={{
-                  fontFamily: 'var(--font-archivoblack)',
-                  fontSize: '14px',
-                  color: 'var(--ink)',
-                  letterSpacing: '-0.01em',
-                  textTransform: 'uppercase',
-                }}
-              >
+              <div className="mb-3" style={{ fontFamily: 'var(--font-archivoblack)', fontSize: '14px', color: 'var(--ink)', letterSpacing: '-0.01em', textTransform: 'uppercase' }}>
                 {p.label}
               </div>
-              <p style={{ fontSize: '13px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>
-                {p.body}
-              </p>
+              <p style={{ fontSize: '13px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>{p.body}</p>
             </motion.div>
           ))}
         </div>
 
-        {/* Dashboard mockup */}
+        {/* Creator dashboard — highest-priority mockup */}
         <motion.div {...fadeUp(0.12)}>
-          <MockupPlaceholder
-            title="Your Genus — [Creator name]"
+          <ProductSlot
+            label="Creator dashboard — annotated product screenshot"
+            sub="Layout: top bar (Genus logo / Your Genus — [Creator name] / nav tabs) → metrics row (Sessions / Active clients / Earnings) → left ⅔: usage graph + activity feed → right ⅓: calibration queue + pause control + status."
             items={[
-              'Top metrics: Sessions this month / Active clients / Earnings to date',
-              'Usage graph: last 30 days — sessions per day with comparison to prior period',
-              'Activity feed: "Brand strategy session with [client]. 14 exchanges. 2 critique cycles."',
-              'Calibration tile: "3 outputs flagged for your review →"',
-              'Control panel: availability toggle, pricing, pause agent',
+              'Annotation → "Real-time usage" (pointing at usage graph, last 30 days, line chart with yellow accent)',
+              'Annotation → "Earnings, attributed to you" (pointing at top metrics tile)',
+              'Annotation → "Calibration queue — your agent only acts after you review" (pointing at calibration tile: "3 outputs flagged for your review →")',
+              'Annotation → "One-tap pause. Always." (pointing at availability toggle in control panel)',
+              'Activity feed entries: "Brand strategy session with [client]. 14 exchanges. 2 critique cycles. → Review"',
+              'Small status indicator: green dot · Live',
             ]}
+            tall
           />
+          <p className="mt-3" style={{ fontFamily: 'var(--font-dmSans)', fontSize: '11px', fontWeight: 300, color: 'var(--muted)' }}>
+            Live preview
+          </p>
         </motion.div>
       </div>
     </section>
   )
 }
 
-// C6 — How creators earn ──────────────────────────────────────────────────────
+// C6 — Earnings — PRODUCT / STRUCTURAL (cards + abstract diagrams) ─────────────
 
 const EARNING_MODELS = [
   {
     label: 'Revenue share',
     body: 'You earn a percentage of every session your agent runs. Higher upside, variable month to month. Suits creators who want their agent working at scale.',
+    Diagram: WaveLine,
   },
   {
     label: 'Licensing',
     body: 'A fixed fee per client engagement, agreed up front. Predictable, closer to how consulting already works. Suits creators who want fewer, deeper relationships.',
+    Diagram: FlatBar,
   },
   {
     label: 'Retainer',
     body: 'A monthly base for keeping your agent live and calibrated, with session fees on top. Suits creators who want a stable floor under the variable income.',
+    Diagram: FloorAndPeak,
   },
 ]
 
@@ -1138,68 +980,38 @@ function CreatorEarnings() {
             className="flex flex-col gap-3 max-w-xl"
             style={{ fontFamily: 'var(--font-dmSans)', fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
           >
-            <p>
-              Different creators want different things. Some want the predictability of a retainer.
-              Some want upside on every session. Some want to license their agent to specific clients and stay close to the work.
-            </p>
-            <p>
-              We&rsquo;re building the model in conversation with the people on the platform.
-              Here are the directions we&rsquo;re exploring.
-            </p>
+            <p>Different creators want different things. Some want the predictability of a retainer. Some want upside on every session. Some want to license their agent to specific clients and stay close to the work.</p>
+            <p>We&rsquo;re building the model in conversation with the people on the platform. Here are the directions we&rsquo;re exploring.</p>
           </div>
         </motion.div>
 
-        {/* Three pricing cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-          {EARNING_MODELS.map((m, i) => (
+          {EARNING_MODELS.map(({ label, body, Diagram }, i) => (
             <motion.div
-              key={m.label}
+              key={label}
               {...fadeUp(i * 0.08)}
               className="p-7"
-              style={{
-                backgroundColor: 'var(--ink)',
-                borderRadius: '3px',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
+              style={{ backgroundColor: 'var(--ink)', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.06)' }}
             >
-              <div
-                className="mb-4"
-                style={{
-                  fontFamily: 'var(--font-archivoblack)',
-                  fontSize: '17px',
-                  color: 'var(--yellow)',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {m.label}
+              {/* Abstract mini-diagram */}
+              <div className="mb-5 opacity-60">
+                <Diagram dark />
+              </div>
+              <div className="mb-4" style={{ fontFamily: 'var(--font-archivoblack)', fontSize: '17px', color: 'var(--yellow)', letterSpacing: '-0.02em' }}>
+                {label}
               </div>
               <p style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
-                {m.body}
+                {body}
               </p>
             </motion.div>
           ))}
         </div>
 
-        <motion.p
-          {...fadeUp(0.1)}
-          className="mb-8"
-          style={{ fontSize: '14px', fontWeight: 300, color: 'var(--mid)', fontFamily: 'var(--font-dmSans)' }}
-        >
+        <motion.p {...fadeUp(0.1)} className="mb-8" style={{ fontSize: '14px', fontWeight: 300, color: 'var(--mid)', fontFamily: 'var(--font-dmSans)' }}>
           Most creators we&rsquo;ve spoken to want a mix. We&rsquo;re designing for that.
         </motion.p>
-
         <motion.div {...fadeUp(0.12)}>
-          <Link
-            href="/apply"
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              fontSize: '14px',
-              fontWeight: 300,
-              color: 'var(--ink)',
-              textDecoration: 'underline',
-              textUnderlineOffset: '3px',
-            }}
-          >
+          <Link href="/apply" style={{ fontFamily: 'var(--font-dmSans)', fontSize: '14px', fontWeight: 300, color: 'var(--ink)', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
             Tell us what would work for you &rarr;
           </Link>
         </motion.div>
@@ -1208,7 +1020,7 @@ function CreatorEarnings() {
   )
 }
 
-// C7 — Deployment ─────────────────────────────────────────────────────────────
+// C7 — Deployment — TYPOGRAPHY-ONLY ──────────────────────────────────────────
 
 function CreatorDeployment() {
   return (
@@ -1223,13 +1035,8 @@ function CreatorDeployment() {
           </SectionHeading>
           <Divider light />
         </motion.div>
-
         <motion.div {...fadeUp(0.08)} className="flex flex-col gap-4 mb-12">
-          {[
-            'Your agent is hired.',
-            'Sessions run.',
-            'You stay in the loop.',
-          ].map((line, i) => (
+          {['Your agent is hired.', 'Sessions run.', 'You stay in the loop.'].map((line, i) => (
             <p
               key={i}
               style={{
@@ -1244,7 +1051,6 @@ function CreatorDeployment() {
             </p>
           ))}
         </motion.div>
-
         <motion.p
           {...fadeUp(0.12)}
           style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: '440px', fontFamily: 'var(--font-dmSans)' }}
@@ -1256,7 +1062,7 @@ function CreatorDeployment() {
   )
 }
 
-// C8 — Creator close ──────────────────────────────────────────────────────────
+// C8 — Creator close — TYPOGRAPHY-ONLY ────────────────────────────────────────
 
 function CreatorClose() {
   return (
@@ -1279,29 +1085,14 @@ function CreatorClose() {
             <br />
             <span style={{ color: 'var(--yellow)' }}>Now it can scale with you.</span>
           </p>
-
           <Link
             href="/apply"
-            className="inline-flex items-center px-8 py-4 rounded-sm text-sm font-medium transition-opacity hover:opacity-90 mb-5"
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              backgroundColor: 'var(--yellow)',
-              color: 'var(--ink)',
-              display: 'inline-flex',
-            }}
+            className="inline-flex items-center px-8 py-4 rounded-sm text-sm font-medium transition-opacity hover:opacity-90"
+            style={{ fontFamily: 'var(--font-dmSans)', backgroundColor: 'var(--yellow)', color: 'var(--ink)' }}
           >
             Apply as a creator &rarr;
           </Link>
-
-          <p
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              fontSize: '13px',
-              fontWeight: 300,
-              color: 'rgba(255,255,255,0.3)',
-              marginTop: '16px',
-            }}
-          >
+          <p style={{ fontFamily: 'var(--font-dmSans)', fontSize: '13px', fontWeight: 300, color: 'rgba(255,255,255,0.3)', marginTop: '16px' }}>
             We review applications weekly. If we&rsquo;re a fit, we&rsquo;ll be in touch within seven days.
           </p>
         </motion.div>
@@ -1329,7 +1120,7 @@ function ClientView() {
   )
 }
 
-// CL1 — The shift ─────────────────────────────────────────────────────────────
+// CL1 — The shift — PRODUCT / STRUCTURAL ─────────────────────────────────────
 
 function ClientShift() {
   return (
@@ -1344,83 +1135,26 @@ function ClientShift() {
             someone thinks.
           </SectionHeading>
           <Divider />
-          <p
-            className="max-w-lg"
-            style={{ fontSize: '17px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
-          >
+          <p className="max-w-lg" style={{ fontSize: '17px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}>
             Generic models give you generic answers. Genus agents are built around named experts —
             their judgment, their standards, their refusals. You get a point of view, not a probability distribution.
           </p>
         </motion.div>
 
-        {/* Side-by-side comparison */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <motion.div
-            {...fadeUp(0.08)}
-            className="p-7"
-            style={{
-              backgroundColor: 'var(--off)',
-              borderRadius: '3px',
-              border: '1px solid var(--rule)',
-            }}
-          >
-            <div
-              className="mb-4"
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '9px',
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'var(--muted)',
-              }}
-            >
+          <motion.div {...fadeUp(0.08)} className="p-7" style={{ backgroundColor: 'var(--off)', borderRadius: '3px', border: '1px solid var(--rule)' }}>
+            <div className="mb-4" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)' }}>
               Generic AI
             </div>
-            <p
-              style={{
-                fontFamily: 'var(--font-dmSans)',
-                fontSize: '14px',
-                fontWeight: 300,
-                color: 'var(--mid)',
-                lineHeight: 1.7,
-                fontStyle: 'italic',
-              }}
-            >
+            <p style={{ fontFamily: 'var(--font-dmSans)', fontSize: '14px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.7, fontStyle: 'italic' }}>
               &ldquo;Here are five potential approaches you could consider, each with different trade-offs...&rdquo;
             </p>
           </motion.div>
-
-          <motion.div
-            {...fadeUp(0.12)}
-            className="p-7"
-            style={{
-              backgroundColor: 'var(--ink)',
-              borderRadius: '3px',
-              border: '1px solid rgba(255,200,0,0.15)',
-            }}
-          >
-            <div
-              className="mb-4"
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '9px',
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'var(--yellow)',
-              }}
-            >
+          <motion.div {...fadeUp(0.12)} className="p-7" style={{ backgroundColor: 'var(--ink)', borderRadius: '3px', border: '1px solid rgba(255,200,0,0.15)' }}>
+            <div className="mb-4" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--yellow)' }}>
               Genus agent
             </div>
-            <p
-              style={{
-                fontFamily: 'var(--font-dmSans)',
-                fontSize: '14px',
-                fontWeight: 300,
-                color: 'rgba(255,255,255,0.65)',
-                lineHeight: 1.7,
-                fontStyle: 'italic',
-              }}
-            >
+            <p style={{ fontFamily: 'var(--font-dmSans)', fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, fontStyle: 'italic' }}>
               &ldquo;Two of these are wrong for your stage. The third is the one. Here&rsquo;s why, and here&rsquo;s what to watch for.&rdquo;
             </p>
           </motion.div>
@@ -1430,24 +1164,44 @@ function ClientShift() {
   )
 }
 
-// CL2 — What you get ──────────────────────────────────────────────────────────
+// CL2 — What you get — PRODUCT / STRUCTURAL (editorial marks inside cards) ────
+
+// Small editorial mark SVGs — pulled from a notebook, not a UI kit
+function ArrowMark() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <line x1="4" y1="12" x2="18" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <polyline points="13,7 18,12 13,17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function AnnotationMark() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="4" y1="10" x2="20" y2="10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.15" />
+      <path d="M6 15 L18 15" stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.4" />
+    </svg>
+  )
+}
+
+function RefusalMark() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <line x1="5" y1="5" x2="19" y2="19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="19" y1="5" x2="5" y2="19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+const VALUE_CARDS = [
+  { label: 'A position', body: "It picks a direction and tells you why. Not five options to choose between.", Mark: ArrowMark },
+  { label: 'A critique', body: 'It pressure-tests your thinking before your team does.', Mark: AnnotationMark },
+  { label: 'A refusal', body: "It tells you when something's wrong — and what to do instead.", Mark: RefusalMark },
+]
 
 function ClientValue() {
-  const cards = [
-    {
-      label: 'A position',
-      body: 'It picks a direction and tells you why. Not five options to choose between.',
-    },
-    {
-      label: 'A critique',
-      body: 'It pressure-tests your thinking before your team does.',
-    },
-    {
-      label: 'A refusal',
-      body: 'It tells you when something’s wrong — and what to do instead.',
-    },
-  ]
-
   return (
     <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
       <div className="max-w-5xl mx-auto">
@@ -1456,32 +1210,16 @@ function ClientValue() {
           <SectionHeading size="md">A working partner, not a generator.</SectionHeading>
           <Divider />
         </motion.div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {cards.map((c, i) => (
-            <motion.div
-              key={c.label}
-              {...fadeUp(i * 0.08)}
-              className="p-7"
-              style={{
-                backgroundColor: 'var(--ink)',
-                borderRadius: '3px',
-              }}
-            >
-              <div
-                className="mb-4"
-                style={{
-                  fontFamily: 'var(--font-archivoblack)',
-                  fontSize: '20px',
-                  color: 'var(--yellow)',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {c.label}
+          {VALUE_CARDS.map(({ label, body, Mark }, i) => (
+            <motion.div key={label} {...fadeUp(i * 0.08)} className="p-7" style={{ backgroundColor: 'var(--ink)', borderRadius: '3px' }}>
+              <div className="mb-4" style={{ color: 'rgba(255,255,255,0.2)' }}>
+                <Mark />
               </div>
-              <p style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65 }}>
-                {c.body}
-              </p>
+              <div className="mb-3" style={{ fontFamily: 'var(--font-archivoblack)', fontSize: '20px', color: 'var(--yellow)', letterSpacing: '-0.02em' }}>
+                {label}
+              </div>
+              <p style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65 }}>{body}</p>
             </motion.div>
           ))}
         </div>
@@ -1490,12 +1228,12 @@ function ClientValue() {
   )
 }
 
-// CL3 — How you work with it ──────────────────────────────────────────────────
+// CL3 — How you work with it — PRODUCT / STRUCTURAL (load-bearing screenshot) ─
 
 const CLIENT_STEPS = [
   { label: 'Ask', detail: 'bring a brief, a draft, a problem' },
   { label: 'Push', detail: 'it responds with a position, not a menu' },
-  { label: 'Refine', detail: 'you challenge it, it adjusts using the expert’s reasoning' },
+  { label: 'Refine', detail: "you challenge it, it adjusts using the expert's reasoning" },
   { label: 'Decide', detail: 'you walk away with something usable' },
 ]
 
@@ -1505,37 +1243,23 @@ function ClientHowItWorks() {
       <div className="max-w-5xl mx-auto">
         <motion.div {...fadeUp(0)} className="mb-14">
           <Label light>How it feels</Label>
-          <SectionHeading size="md" dark>
-            Work with it the way you&rsquo;d work with them.
-          </SectionHeading>
+          <SectionHeading size="md" dark>Work with it the way you&rsquo;d work with them.</SectionHeading>
           <Divider light />
-          <p
-            className="max-w-lg"
-            style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
-          >
+          <p className="max-w-lg" style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}>
             Sessions, not chats. You bring a brief. The agent diagnoses the problem, pulls relevant references,
             generates directions, critiques them against the expert&rsquo;s standards, and delivers a position you can act on.
           </p>
         </motion.div>
 
-        {/* Process strip */}
-        <motion.div {...fadeUp(0.08)} className="flex flex-col gap-4 mb-14">
+        {/* Process strip — product/structural, static */}
+        <motion.div {...fadeUp(0.08)} className="flex flex-col gap-0 mb-14">
           {CLIENT_STEPS.map((step, i) => (
             <div
               key={step.label}
               className="flex items-start md:items-center gap-5 py-4"
               style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
             >
-              <span
-                style={{
-                  fontFamily: 'var(--font-archivoblack)',
-                  fontSize: 'clamp(18px, 2.5vw, 26px)',
-                  color: i === 3 ? 'var(--yellow)' : 'white',
-                  letterSpacing: '-0.03em',
-                  minWidth: '90px',
-                  flexShrink: 0,
-                }}
-              >
+              <span style={{ fontFamily: 'var(--font-archivoblack)', fontSize: 'clamp(18px, 2.5vw, 26px)', color: i === 3 ? 'var(--yellow)' : 'white', letterSpacing: '-0.03em', minWidth: '90px', flexShrink: 0 }}>
                 {step.label}
               </span>
               <span style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-dmSans)' }}>
@@ -1545,17 +1269,19 @@ function ClientHowItWorks() {
           ))}
         </motion.div>
 
-        {/* Session view mockup */}
+        {/* Session view mockup — highest-priority client screenshot */}
         <motion.div {...fadeUp(0.12)}>
-          <MockupPlaceholder
-            title="Session view — Brand Strategy with [Expert name]"
+          <ProductSlot
+            label="Session view — annotated product screenshot"
             dark
+            sub="Layout: left rail (active session, named expert with portrait, session timer) → main panel (real exchange: client brief, agent position + rationale + reference cards, 'Challenge this' button) → right rail (brief, references in play, prior decisions)."
             items={[
-              'Left rail: Active session with agent name, discipline, brief context',
-              'Main panel: real exchange — user question, agent position + rationale + references. "Challenge this" button visible.',
-              'Right rail: session context — brief, references in play, prior decisions in this session',
-              'Named expert · Reasoning visible · Reference trail · Challenge mode',
+              'Annotation → "Named expert, with face and reputation" (pointing at expert portrait in left rail)',
+              'Annotation → "Reasoning shown, not hidden" (pointing at rationale paragraph in agent response)',
+              'Annotation → "References pulled from the expert\'s archive" (pointing at reference cards below response)',
+              'Annotation → "Push back. The agent adjusts." (pointing at \'Challenge this\' button)',
             ]}
+            tall
           />
         </motion.div>
       </div>
@@ -1563,12 +1289,21 @@ function ClientHowItWorks() {
   )
 }
 
-// CL4 — Team effect ───────────────────────────────────────────────────────────
+// CL4 — Team effect — EDITORIAL / TEXTURAL ───────────────────────────────────
 
 const TEAM_SCENARIOS = [
-  'A junior strategist drafts a positioning brief. The brand strategy agent pushes back on the wedge and explains why. The strategist rewrites — sharper than they would have alone.',
-  'A product designer runs a flow past the UX agent. It flags three edge cases their PM missed. The team ships a stronger spec.',
-  'A new hire ramps in weeks instead of months by working alongside an agent built on your discipline’s best thinking.',
+  {
+    body: "A junior strategist drafts a positioning brief. The brand strategy agent pushes back on the wedge and explains why. The strategist rewrites — sharper than they would have alone.",
+    texture: 'Junior strategist scenario — marked-up positioning document fragment, one line crossed out and rewritten',
+  },
+  {
+    body: "A product designer runs a flow past the UX agent. It flags three edge cases their PM missed. The team ships a stronger spec.",
+    texture: 'Product designer scenario — flow diagram fragment with three edge cases circled in red',
+  },
+  {
+    body: "A new hire ramps in weeks instead of months by working alongside an agent built on your discipline's best thinking.",
+    texture: 'New hire scenario — condensed onboarding document or calendar fragment',
+  },
 ]
 
 function ClientTeamEffect() {
@@ -1583,60 +1318,37 @@ function ClientTeamEffect() {
             they don&rsquo;t have yet.
           </SectionHeading>
           <Divider />
-          <p
-            className="max-w-lg"
-            style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
-          >
+          <p className="max-w-lg" style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}>
             Junior team members don&rsquo;t just get answers. They see how a senior expert reasons through a problem —
             what gets prioritised, what gets rejected, why. Over time, that exposure shapes how they think.
           </p>
         </motion.div>
 
         <div className="flex flex-col gap-0 mb-16">
-          {TEAM_SCENARIOS.map((scenario, i) => (
+          {TEAM_SCENARIOS.map(({ body, texture }, i) => (
             <motion.div
               key={i}
               {...fadeUp(i * 0.07)}
-              className="flex items-start gap-6 py-7"
+              className="grid grid-cols-1 md:grid-cols-[1fr_160px] gap-6 py-8"
               style={{ borderBottom: '1px solid var(--rule)' }}
             >
-              <span
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '9px',
-                  color: 'var(--yellow)',
-                  flexShrink: 0,
-                  paddingTop: '4px',
-                  letterSpacing: '0.1em',
-                }}
-              >
-                0{i + 1}
-              </span>
-              <p
-                style={{
-                  fontFamily: 'var(--font-dmSans)',
-                  fontSize: '15px',
-                  fontWeight: 300,
-                  color: 'var(--mid)',
-                  lineHeight: 1.75,
-                }}
-              >
-                {scenario}
-              </p>
+              <div className="flex items-start gap-5">
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', color: 'var(--yellow)', flexShrink: 0, paddingTop: '4px', letterSpacing: '0.1em' }}>
+                  0{i + 1}
+                </span>
+                <p style={{ fontFamily: 'var(--font-dmSans)', fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}>
+                  {body}
+                </p>
+              </div>
+              <div className="hidden md:block self-center">
+                <EditorialSlot label={texture} ratio="4 / 3" />
+              </div>
             </motion.div>
           ))}
         </div>
 
         <motion.div {...fadeUp(0.1)}>
-          <p
-            style={{
-              fontFamily: 'var(--font-archivoblack)',
-              fontSize: 'clamp(22px, 3.5vw, 40px)',
-              color: 'var(--ink)',
-              letterSpacing: '-0.03em',
-              lineHeight: 1.1,
-            }}
-          >
+          <p style={{ fontFamily: 'var(--font-archivoblack)', fontSize: 'clamp(22px, 3.5vw, 40px)', color: 'var(--ink)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
             This is how taste scales.
             <br />
             <span style={{ color: 'var(--yellow)' }}>Not through process documents. Through exposure.</span>
@@ -1647,7 +1359,7 @@ function ClientTeamEffect() {
   )
 }
 
-// CL5 — Disciplines ───────────────────────────────────────────────────────────
+// CL5 — Disciplines — TYPOGRAPHY-ONLY ────────────────────────────────────────
 
 const DISCIPLINES = [
   { name: 'Brand Strategy', use: 'Pressure-test positioning before you commit' },
@@ -1662,14 +1374,9 @@ function ClientDisciplines() {
       <div className="max-w-5xl mx-auto">
         <motion.div {...fadeUp(0)} className="mb-12">
           <Label>Where it shows up</Label>
-          <SectionHeading size="md">
-            Built for the work where judgment
-            <br />
-            actually matters.
-          </SectionHeading>
+          <SectionHeading size="md">Built for the work where judgment actually matters.</SectionHeading>
           <Divider />
         </motion.div>
-
         <div className="flex flex-col mb-8">
           {DISCIPLINES.map((d, i) => (
             <motion.div
@@ -1678,14 +1385,7 @@ function ClientDisciplines() {
               className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-8 py-6"
               style={{ borderBottom: '1px solid var(--rule)' }}
             >
-              <div
-                style={{
-                  fontFamily: 'var(--font-archivoblack)',
-                  fontSize: '18px',
-                  color: 'var(--ink)',
-                  letterSpacing: '-0.02em',
-                }}
-              >
+              <div style={{ fontFamily: 'var(--font-archivoblack)', fontSize: '18px', color: 'var(--ink)', letterSpacing: '-0.02em' }}>
                 {d.name}
               </div>
               <div style={{ fontSize: '14px', fontWeight: 300, color: 'var(--mid)', fontFamily: 'var(--font-dmSans)' }}>
@@ -1694,11 +1394,7 @@ function ClientDisciplines() {
             </motion.div>
           ))}
         </div>
-
-        <motion.p
-          {...fadeUp(0.1)}
-          style={{ fontSize: '12px', fontWeight: 300, color: 'var(--muted)', fontFamily: 'var(--font-dmSans)' }}
-        >
+        <motion.p {...fadeUp(0.1)} style={{ fontSize: '12px', fontWeight: 300, color: 'var(--muted)', fontFamily: 'var(--font-dmSans)' }}>
           More disciplines added as we onboard new creators.
         </motion.p>
       </div>
@@ -1706,13 +1402,13 @@ function ClientDisciplines() {
   )
 }
 
-// CL6 — Combination ───────────────────────────────────────────────────────────
+// CL6 — Combination — PRODUCT / STRUCTURAL ────────────────────────────────────
 
 function ClientCombination() {
   return (
     <section className="bg-white px-5 md:px-12 py-20 md:py-28">
       <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start">
           <motion.div {...fadeUp(0)}>
             <Label>Combination</Label>
             <SectionHeading size="md">
@@ -1721,24 +1417,16 @@ function ClientCombination() {
               Or a system of them.
             </SectionHeading>
             <Divider />
-            <div
-              className="flex flex-col gap-4"
-              style={{ fontFamily: 'var(--font-dmSans)', fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
-            >
-              <p>
-                Most real briefs need more than one perspective. A launch needs strategy, creative, and product thinking —
-                each pulling against the others.
-              </p>
-              <p>
-                In Genus, you can run multiple agents on the same brief and let the disagreements surface.
-                That&rsquo;s where the useful answer usually is.
-              </p>
+            <div className="flex flex-col gap-4" style={{ fontFamily: 'var(--font-dmSans)', fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}>
+              <p>Most real briefs need more than one perspective. A launch needs strategy, creative, and product thinking — each pulling against the others.</p>
+              <p>In Genus, you can run multiple agents on the same brief and let the disagreements surface. That&rsquo;s where the useful answer usually is.</p>
             </div>
           </motion.div>
 
           <motion.div {...fadeUp(0.1)}>
-            <IllustrationPlaceholder
-              label="Illustration — three agents, one brief, visible disagreement"
+            <ProductSlot
+              label="Multi-agent disagreement diagram"
+              sub="Three named agents (Strategist, Creative Director, Product Lead) as portrait/named nodes on the left. Each agent's position shown as a short distinct text fragment — they visibly disagree. All three positions feed into a central 'Brief' panel. Disagreement is the feature, not a bug."
               ratio="4 / 3"
             />
           </motion.div>
@@ -1748,7 +1436,7 @@ function ClientCombination() {
   )
 }
 
-// CL7 — Integration ───────────────────────────────────────────────────────────
+// CL7 — Integration — PRODUCT / STRUCTURAL (minimal) ─────────────────────────
 
 function ClientIntegration() {
   const tools = ['Slack', 'Notion', 'API']
@@ -1760,27 +1448,18 @@ function ClientIntegration() {
           <SectionHeading size="md">Works where you work.</SectionHeading>
           <Divider />
         </motion.div>
-
         <motion.div {...fadeUp(0.06)} className="max-w-lg mb-10">
-          <Body>
-            Start inside Genus. Extend into Slack, Notion, or your own tools when you&rsquo;re ready.
-          </Body>
+          <Body>Start inside Genus. Extend into Slack, Notion, or your own tools when you&rsquo;re ready.</Body>
         </motion.div>
-
         <motion.div {...fadeUp(0.1)} className="flex flex-wrap gap-3">
           {tools.map((t) => (
             <span
               key={t}
               className="px-4 py-2.5"
               style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '10px',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: 'var(--mid)',
-                backgroundColor: 'var(--surface)',
-                borderRadius: '3px',
-                border: '1px solid var(--rule)',
+                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.1em',
+                textTransform: 'uppercase', color: 'var(--mid)', backgroundColor: 'var(--surface)',
+                borderRadius: '3px', border: '1px solid var(--rule)',
               }}
             >
               {t === 'API' ? 'API — [placeholder]' : t}
@@ -1792,7 +1471,7 @@ function ClientIntegration() {
   )
 }
 
-// CL8 — Client close ──────────────────────────────────────────────────────────
+// CL8 — Client close — TYPOGRAPHY-ONLY ────────────────────────────────────────
 
 function ClientClose() {
   return (
@@ -1801,42 +1480,20 @@ function ClientClose() {
         <motion.div {...fadeUp(0)}>
           <p
             className="mb-12"
-            style={{
-              fontFamily: 'var(--font-archivoblack)',
-              fontSize: 'clamp(32px, 5.5vw, 72px)',
-              color: 'white',
-              letterSpacing: '-0.04em',
-              lineHeight: 0.97,
-            }}
+            style={{ fontFamily: 'var(--font-archivoblack)', fontSize: 'clamp(32px, 5.5vw, 72px)', color: 'white', letterSpacing: '-0.04em', lineHeight: 0.97 }}
           >
             Not a chatbot.
             <br />
-            <span style={{ color: 'var(--yellow)' }}>
-              The thinking behind the work.
-            </span>
+            <span style={{ color: 'var(--yellow)' }}>The thinking behind the work.</span>
           </p>
-
           <Link
             href="/agents"
-            className="inline-flex items-center px-8 py-4 rounded-sm text-sm font-medium transition-opacity hover:opacity-90 mb-5"
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              backgroundColor: 'var(--yellow)',
-              color: 'var(--ink)',
-            }}
+            className="inline-flex items-center px-8 py-4 rounded-sm text-sm font-medium transition-opacity hover:opacity-90"
+            style={{ fontFamily: 'var(--font-dmSans)', backgroundColor: 'var(--yellow)', color: 'var(--ink)' }}
           >
             Find your Genus &rarr;
           </Link>
-
-          <p
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              fontSize: '13px',
-              fontWeight: 300,
-              color: 'rgba(255,255,255,0.3)',
-              marginTop: '16px',
-            }}
-          >
+          <p style={{ fontFamily: 'var(--font-dmSans)', fontSize: '13px', fontWeight: 300, color: 'rgba(255,255,255,0.3)', marginTop: '16px' }}>
             Tell us what you&rsquo;re working on. We&rsquo;ll match you with the right agent — or build a shortlist — within a week.
           </p>
         </motion.div>
