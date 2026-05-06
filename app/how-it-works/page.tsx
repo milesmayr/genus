@@ -116,17 +116,54 @@ function Dot({ dark = false }: { dark?: boolean }) {
   )
 }
 
-// ─── Toggle ──────────────────────────────────────────────────────────────────
+// ─── Illustration placeholder ─────────────────────────────────────────────────
 
-function Toggle({ view, setView, sticky }: { view: View; setView: (v: View) => void; sticky?: boolean }) {
+function IllustrationPlaceholder({
+  label,
+  ratio = '2 / 1',
+  dark = false,
+}: {
+  label: string
+  ratio?: string
+  dark?: boolean
+}) {
+  return (
+    <div
+      className="w-full flex items-center justify-center"
+      style={{
+        aspectRatio: ratio,
+        border: `2px dashed ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.12)'}`,
+        borderRadius: '3px',
+        backgroundColor: dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+      }}
+    >
+      <span
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '9px',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+          textAlign: 'center',
+          padding: '0 16px',
+        }}
+      >
+        [ {label} ]
+      </span>
+    </div>
+  )
+}
+
+// ─── Sticky pill toggle (on scroll) ──────────────────────────────────────────
+
+function PillToggle({ view, setView }: { view: View; setView: (v: View) => void }) {
   return (
     <div
       className="inline-flex"
       style={{
-        backgroundColor: sticky ? 'rgba(17,17,16,0.96)' : 'rgba(255,255,255,0.06)',
+        backgroundColor: 'rgba(255,255,255,0.06)',
         borderRadius: '4px',
         padding: '4px',
-        border: sticky ? '1px solid rgba(255,255,255,0.08)' : 'none',
       }}
     >
       {(['creators', 'clients'] as View[]).map((v) => (
@@ -158,20 +195,20 @@ function Toggle({ view, setView, sticky }: { view: View; setView: (v: View) => v
 export default function HowItWorksPage() {
   const [view, setView] = useState<View>('creators')
   const [showStickyToggle, setShowStickyToggle] = useState(false)
-  const heroRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => setShowStickyToggle(!entry.isIntersecting),
       { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
     )
-    if (heroRef.current) observer.observe(heroRef.current)
+    if (headerRef.current) observer.observe(headerRef.current)
     return () => observer.disconnect()
   }, [])
 
   return (
     <main>
-      {/* Sticky toggle bar */}
+      {/* Sticky toggle bar — appears after header scrolls away */}
       <AnimatePresence>
         {showStickyToggle && (
           <motion.div
@@ -180,14 +217,18 @@ export default function HowItWorksPage() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
             className="fixed top-16 left-0 right-0 z-40 flex justify-center py-3"
-            style={{ backgroundColor: 'rgba(17,17,16,0.96)', borderBottom: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)' }}
+            style={{
+              backgroundColor: 'rgba(17,17,16,0.96)',
+              borderBottom: '1px solid rgba(255,255,255,0.07)',
+              backdropFilter: 'blur(12px)',
+            }}
           >
-            <Toggle view={view} setView={setView} sticky />
+            <PillToggle view={view} setView={setView} />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <Hero view={view} setView={setView} heroRef={heroRef} />
+      <PageHeader view={view} setView={setView} headerRef={headerRef} />
 
       <AnimatePresence mode="wait">
         {view === 'creators' ? (
@@ -216,75 +257,82 @@ export default function HowItWorksPage() {
   )
 }
 
-// ─── Hero ────────────────────────────────────────────────────────────────────
+// ─── Page header (compact — toggle is the headline) ──────────────────────────
 
-function Hero({
+function PageHeader({
   view,
   setView,
-  heroRef,
+  headerRef,
 }: {
   view: View
   setView: (v: View) => void
-  heroRef: React.RefObject<HTMLDivElement>
+  headerRef: React.RefObject<HTMLDivElement>
 }) {
   return (
     <section
-      ref={heroRef}
-      className="min-h-[60vh] flex flex-col justify-end px-5 md:px-12 pt-32 pb-14"
+      ref={headerRef}
+      className="px-5 md:px-12 pt-32 pb-14"
       style={{ backgroundColor: 'var(--ink)' }}
     >
-      <div className="max-w-5xl mx-auto w-full">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: EASE_OUT_EXPO }}
+          transition={{ duration: 0.45, ease: EASE_OUT_EXPO }}
         >
           <Label light>System</Label>
         </motion.div>
 
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, delay: 0.05, ease: EASE_OUT_EXPO }}
-          className="mb-5"
+          transition={{ duration: 0.55, delay: 0.05, ease: EASE_OUT_EXPO }}
           style={{
             fontFamily: 'var(--font-archivoblack)',
-            fontSize: 'clamp(40px, 7vw, 96px)',
+            fontSize: 'clamp(36px, 6vw, 80px)',
             color: 'white',
             letterSpacing: '-0.04em',
-            lineHeight: 0.95,
+            lineHeight: 1.0,
           }}
         >
-          How Genus
+          How it works for
           <br />
-          works.
+          <button
+            onClick={() => setView('creators')}
+            style={{
+              fontFamily: 'inherit',
+              fontSize: 'inherit',
+              letterSpacing: 'inherit',
+              lineHeight: 'inherit',
+              color: view === 'creators' ? 'var(--yellow)' : 'rgba(255,255,255,0.22)',
+              transition: 'color 0.18s ease',
+              cursor: 'pointer',
+              background: 'none',
+              border: 'none',
+              padding: 0,
+            }}
+          >
+            Creators
+          </button>
+          <span style={{ color: 'rgba(255,255,255,0.15)', margin: '0 0.2em' }}>/</span>
+          <button
+            onClick={() => setView('clients')}
+            style={{
+              fontFamily: 'inherit',
+              fontSize: 'inherit',
+              letterSpacing: 'inherit',
+              lineHeight: 'inherit',
+              color: view === 'clients' ? 'var(--yellow)' : 'rgba(255,255,255,0.22)',
+              transition: 'color 0.18s ease',
+              cursor: 'pointer',
+              background: 'none',
+              border: 'none',
+              padding: 0,
+            }}
+          >
+            Clients
+          </button>
         </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.12, ease: EASE_OUT_EXPO }}
-          className="mb-12 max-w-md"
-          style={{
-            fontSize: '16px',
-            fontWeight: 300,
-            color: 'rgba(255,255,255,0.45)',
-            lineHeight: 1.65,
-            fontFamily: 'var(--font-dmSans)',
-          }}
-        >
-          Not a tool.
-          <br />
-          A system for protecting and deploying how you think.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.2, ease: EASE_OUT_EXPO }}
-        >
-          <Toggle view={view} setView={setView} />
-        </motion.div>
       </div>
     </section>
   )
@@ -315,38 +363,41 @@ function CreatorReframe() {
   return (
     <section className="bg-white px-5 md:px-12 py-20 md:py-28">
       <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)}>
-          <Label>What this is</Label>
-          <SectionHeading size="lg">
-            You&rsquo;re not building a tool.
-            <br />
-            You&rsquo;re codifying how you think.
-          </SectionHeading>
-          <Divider />
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start mb-14">
+          <motion.div {...fadeUp(0)}>
+            <Label>What this is</Label>
+            <SectionHeading size="lg">
+              You&rsquo;re not building a tool.
+              <br />
+              You&rsquo;re codifying how you think.
+            </SectionHeading>
+            <Divider />
+            <div
+              className="flex flex-col gap-2"
+              style={{
+                fontFamily: 'var(--font-dmSans)',
+                fontSize: '17px',
+                fontWeight: 300,
+                color: 'var(--mid)',
+                lineHeight: 1.75,
+              }}
+            >
+              <p>This isn&rsquo;t prompts.</p>
+              <p>It&rsquo;s not content.</p>
+              <p>It&rsquo;s not training data.</p>
+              <br />
+              <p>It&rsquo;s your judgment.</p>
+              <p>Your taste.</p>
+              <p>Your decisions under pressure.</p>
+              <br />
+              <p style={{ color: 'var(--ink)', fontWeight: 400 }}>Structured. Captured. Working.</p>
+            </div>
+          </motion.div>
 
-        <motion.div {...fadeUp(0.08)} className="max-w-xl">
-          <div
-            className="flex flex-col gap-2"
-            style={{
-              fontFamily: 'var(--font-dmSans)',
-              fontSize: '17px',
-              fontWeight: 300,
-              color: 'var(--mid)',
-              lineHeight: 1.75,
-            }}
-          >
-            <p>This isn&rsquo;t prompts.</p>
-            <p>It&rsquo;s not content.</p>
-            <p>It&rsquo;s not training data.</p>
-            <br />
-            <p>It&rsquo;s your judgment.</p>
-            <p>Your taste.</p>
-            <p>Your decisions under pressure.</p>
-            <br />
-            <p style={{ color: 'var(--ink)', fontWeight: 400 }}>Structured. Captured. Working.</p>
-          </div>
-        </motion.div>
+          <motion.div {...fadeUp(0.1)}>
+            <IllustrationPlaceholder label="Illustration — what gets captured" ratio="3 / 4" />
+          </motion.div>
+        </div>
       </div>
     </section>
   )
@@ -430,7 +481,7 @@ function CreatorOnboarding() {
           ))}
         </div>
 
-        <div className="hidden md:grid grid-cols-3 gap-4">
+        <div className="hidden md:grid grid-cols-3 gap-4 mb-14">
           {sessions.map((s, i) => (
             <motion.div
               key={s.num}
@@ -446,6 +497,10 @@ function CreatorOnboarding() {
             </motion.div>
           ))}
         </div>
+
+        <motion.div {...fadeUp(0.2)}>
+          <IllustrationPlaceholder label="Illustration — the extraction session" ratio="16 / 6" />
+        </motion.div>
       </div>
     </section>
   )
@@ -520,7 +575,7 @@ function CreatorAgent() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 mb-14">
           <motion.div {...fadeUp(0.06)}>
             <div
               className="mb-4"
@@ -572,6 +627,10 @@ function CreatorAgent() {
             </div>
           </motion.div>
         </div>
+
+        <motion.div {...fadeUp(0.15)}>
+          <IllustrationPlaceholder label="Illustration — agent architecture / your layer" ratio="16 / 5" dark />
+        </motion.div>
       </div>
     </section>
   )
@@ -906,29 +965,32 @@ function ClientReframe() {
   return (
     <section className="bg-white px-5 md:px-12 py-20 md:py-28">
       <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)}>
-          <Label>What this is</Label>
-          <SectionHeading size="lg">
-            You&rsquo;re not hiring AI.
-            <br />
-            You&rsquo;re hiring how someone thinks.
-          </SectionHeading>
-          <Divider />
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start">
+          <motion.div {...fadeUp(0)}>
+            <Label>What this is</Label>
+            <SectionHeading size="lg">
+              You&rsquo;re not hiring AI.
+              <br />
+              You&rsquo;re hiring how someone thinks.
+            </SectionHeading>
+            <Divider />
+            <div
+              className="flex flex-col gap-2"
+              style={{ fontSize: '17px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
+            >
+              <p>Not generic outputs.</p>
+              <p>Not anonymous systems.</p>
+              <br />
+              <p style={{ color: 'var(--ink)', fontWeight: 400 }}>
+                Named expertise. Structured and usable.
+              </p>
+            </div>
+          </motion.div>
 
-        <motion.div {...fadeUp(0.08)} className="max-w-xl">
-          <div
-            className="flex flex-col gap-2"
-            style={{ fontSize: '17px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
-          >
-            <p>Not generic outputs.</p>
-            <p>Not anonymous systems.</p>
-            <br />
-            <p style={{ color: 'var(--ink)', fontWeight: 400 }}>
-              Named expertise. Structured and usable.
-            </p>
-          </div>
-        </motion.div>
+          <motion.div {...fadeUp(0.1)}>
+            <IllustrationPlaceholder label="Illustration — named expertise" ratio="3 / 4" />
+          </motion.div>
+        </div>
       </div>
     </section>
   )
@@ -1023,12 +1085,15 @@ function ClientUsage() {
           ))}
         </motion.div>
 
-        <motion.p
-          {...fadeUp(0.12)}
-          style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-dmSans)' }}
-        >
-          Session-based. Direct. No friction.
-        </motion.p>
+        <motion.div {...fadeUp(0.12)} className="mb-10">
+          <p style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-dmSans)' }}>
+            Session-based. Direct. No friction.
+          </p>
+        </motion.div>
+
+        <motion.div {...fadeUp(0.16)}>
+          <IllustrationPlaceholder label="Illustration — a session in action" ratio="16 / 6" dark />
+        </motion.div>
       </div>
     </section>
   )
@@ -1088,23 +1153,26 @@ function ClientTeamModel() {
   return (
     <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
       <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="mb-10">
-          <Label>Combination</Label>
-          <SectionHeading size="md">
-            Hire one mind.
-            <br />
-            Or a system of them.
-          </SectionHeading>
-          <Divider />
-        </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+          <motion.div {...fadeUp(0)}>
+            <Label>Combination</Label>
+            <SectionHeading size="md">
+              Hire one mind.
+              <br />
+              Or a system of them.
+            </SectionHeading>
+            <Divider />
+            <Body>
+              Combine agents across disciplines.
+              Strategy, creative, product — working together on the same brief.
+              Each bringing their own point of view.
+            </Body>
+          </motion.div>
 
-        <motion.div {...fadeUp(0.08)} className="max-w-xl">
-          <Body>
-            Combine agents across disciplines.
-            Strategy, creative, product — working together on the same brief.
-            Each bringing their own point of view.
-          </Body>
-        </motion.div>
+          <motion.div {...fadeUp(0.1)}>
+            <IllustrationPlaceholder label="Illustration — agent combinations" ratio="4 / 3" />
+          </motion.div>
+        </div>
       </div>
     </section>
   )
