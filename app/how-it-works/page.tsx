@@ -324,6 +324,11 @@ export default function HowItWorksPage() {
     return () => observer.disconnect()
   }, [])
 
+  const switchView = (v: View) => {
+    setView(v)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <main>
       <AnimatePresence>
@@ -340,12 +345,12 @@ export default function HowItWorksPage() {
               backdropFilter: 'blur(12px)',
             }}
           >
-            <PillToggle view={view} setView={setView} />
+            <PillToggle view={view} setView={switchView} />
           </motion.div>
         )}
       </AnimatePresence>
 
-      <PageHeader view={view} setView={setView} headerRef={headerRef} />
+      <PageHeader view={view} setView={switchView} headerRef={headerRef} />
 
       <AnimatePresence mode="wait">
         {view === 'creators' ? (
