@@ -1439,7 +1439,7 @@ function ClientCombination() {
 // CL7 — Integration — PRODUCT / STRUCTURAL (minimal) ─────────────────────────
 
 function ClientIntegration() {
-  const tools = ['Slack', 'Notion', 'API']
+  const tools = ['Figma', 'Slack', 'Notion', 'API']
   return (
     <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
       <div className="max-w-5xl mx-auto">

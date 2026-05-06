@@ -34,8 +34,26 @@ function SlackIcon() {
   )
 }
 
+function FigmaIcon() {
+  return (
+    <svg width="13" height="19" viewBox="0 0 200 300" fill="none" aria-label="Figma">
+      {/* Red — top-left cell */}
+      <path d="M100 0H50C22.4 0 0 22.4 0 50v50h100V0z" fill="#F24E1E" />
+      {/* Purple — top-right cell */}
+      <path d="M100 0h50c27.6 0 50 22.4 50 50s-22.4 50-50 50H100V0z" fill="#A259FF" />
+      {/* Orange — middle-left cell */}
+      <path d="M0 100h100v100H50c-27.6 0-50-22.4-50-50V100z" fill="#FF7262" />
+      {/* Blue — middle-right circle */}
+      <circle cx="150" cy="150" r="50" fill="#1ABCFE" />
+      {/* Green — bottom-left semicircle */}
+      <path d="M0 200h100v50c0 27.6-22.4 50-50 50S0 277.6 0 250v-50z" fill="#0ACF83" />
+    </svg>
+  )
+}
+
 const INTEGRATIONS = [
   { name: 'ChatGPT', icon: <ChatGPTIcon /> },
+  { name: 'Figma', icon: <FigmaIcon /> },
   { name: 'Notion', icon: <NotionIcon /> },
   { name: 'Slack', icon: <SlackIcon /> },
   { name: 'API', icon: null },
