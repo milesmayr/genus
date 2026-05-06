@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import ControlStrip from '@/components/ControlStrip'
@@ -92,12 +92,64 @@ function Body({
   )
 }
 
-function Divider({ dark = false }: { dark?: boolean }) {
+function Divider() {
   return (
     <div
       className="w-8 mb-8 mt-1"
-      style={{ height: 2, backgroundColor: dark ? 'var(--yellow)' : 'var(--yellow)', opacity: 0.7 }}
+      style={{ height: 2, backgroundColor: 'var(--yellow)', opacity: 0.7 }}
     />
+  )
+}
+
+function Dot({ dark = false }: { dark?: boolean }) {
+  return (
+    <span
+      className="flex-shrink-0 mt-[7px]"
+      style={{
+        width: 4,
+        height: 4,
+        borderRadius: '50%',
+        backgroundColor: dark ? 'rgba(255,255,255,0.3)' : 'var(--yellow)',
+        display: 'block',
+      }}
+    />
+  )
+}
+
+// ─── Toggle ──────────────────────────────────────────────────────────────────
+
+function Toggle({ view, setView, sticky }: { view: View; setView: (v: View) => void; sticky?: boolean }) {
+  return (
+    <div
+      className="inline-flex"
+      style={{
+        backgroundColor: sticky ? 'rgba(17,17,16,0.96)' : 'rgba(255,255,255,0.06)',
+        borderRadius: '4px',
+        padding: '4px',
+        border: sticky ? '1px solid rgba(255,255,255,0.08)' : 'none',
+      }}
+    >
+      {(['creators', 'clients'] as View[]).map((v) => (
+        <button
+          key={v}
+          onClick={() => setView(v)}
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '10px',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            padding: '10px 20px',
+            borderRadius: '3px',
+            transition: 'background-color 0.15s ease, color 0.15s ease',
+            backgroundColor: view === v ? 'var(--yellow)' : 'transparent',
+            color: view === v ? 'var(--ink)' : 'rgba(255,255,255,0.4)',
+            cursor: 'pointer',
+          }}
+        >
+          For {v === 'creators' ? 'Creators' : 'Clients'}
+        </button>
+      ))}
+    </div>
   )
 }
 
@@ -105,10 +157,38 @@ function Divider({ dark = false }: { dark?: boolean }) {
 
 export default function HowItWorksPage() {
   const [view, setView] = useState<View>('creators')
+  const [showStickyToggle, setShowStickyToggle] = useState(false)
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyToggle(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-64px 0px 0px 0px' }
+    )
+    if (heroRef.current) observer.observe(heroRef.current)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <main>
-      <Hero view={view} setView={setView} />
+      {/* Sticky toggle bar */}
+      <AnimatePresence>
+        {showStickyToggle && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
+            className="fixed top-16 left-0 right-0 z-40 flex justify-center py-3"
+            style={{ backgroundColor: 'rgba(17,17,16,0.96)', borderBottom: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(12px)' }}
+          >
+            <Toggle view={view} setView={setView} sticky />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Hero view={view} setView={setView} heroRef={heroRef} />
+
       <AnimatePresence mode="wait">
         {view === 'creators' ? (
           <motion.div
@@ -116,7 +196,7 @@ export default function HowItWorksPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.18 }}
           >
             <CreatorView />
           </motion.div>
@@ -126,7 +206,7 @@ export default function HowItWorksPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.18 }}
           >
             <ClientView />
           </motion.div>
@@ -138,9 +218,18 @@ export default function HowItWorksPage() {
 
 // ─── Hero ────────────────────────────────────────────────────────────────────
 
-function Hero({ view, setView }: { view: View; setView: (v: View) => void }) {
+function Hero({
+  view,
+  setView,
+  heroRef,
+}: {
+  view: View
+  setView: (v: View) => void
+  heroRef: React.RefObject<HTMLDivElement>
+}) {
   return (
     <section
+      ref={heroRef}
       className="min-h-[60vh] flex flex-col justify-end px-5 md:px-12 pt-32 pb-14"
       style={{ backgroundColor: 'var(--ink)' }}
     >
@@ -189,38 +278,12 @@ function Hero({ view, setView }: { view: View; setView: (v: View) => void }) {
           A system for protecting and deploying how you think.
         </motion.p>
 
-        {/* Toggle */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.2, ease: EASE_OUT_EXPO }}
-          className="inline-flex"
-          style={{
-            backgroundColor: 'rgba(255,255,255,0.06)',
-            borderRadius: '4px',
-            padding: '4px',
-          }}
         >
-          {(['creators', 'clients'] as View[]).map((v) => (
-            <button
-              key={v}
-              onClick={() => setView(v)}
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '10px',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                padding: '10px 20px',
-                borderRadius: '3px',
-                transition: 'background-color 0.15s ease, color 0.15s ease',
-                backgroundColor: view === v ? 'var(--yellow)' : 'transparent',
-                color: view === v ? 'var(--ink)' : 'rgba(255,255,255,0.4)',
-                cursor: 'pointer',
-              }}
-            >
-              For {v === 'creators' ? 'Creators' : 'Clients'}
-            </button>
-          ))}
+          <Toggle view={view} setView={setView} />
         </motion.div>
       </div>
     </section>
@@ -329,12 +392,45 @@ function CreatorOnboarding() {
             <p>You don&rsquo;t dump files.</p>
             <br />
             <p>We work with you directly.</p>
-            <p>Three focused sessions designed to surface how you actually think.</p>
+            <p>Three focused sessions designed to surface:</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            {[
+              'How you make decisions',
+              'What you optimise for',
+              'Where you draw the line',
+              'What you would never do',
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-3">
+                <Dot />
+                <span style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>
+                  {item}
+                </span>
+              </div>
+            ))}
           </div>
         </motion.div>
 
-        {/* Session cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Session cards — horizontal scroll on mobile, grid on desktop */}
+        <div className="md:hidden flex gap-4 overflow-x-auto pb-4 -mx-5 px-5">
+          {sessions.map((s, i) => (
+            <motion.div
+              key={s.num}
+              {...fadeUp(i * 0.08)}
+              className="flex-shrink-0 w-[280px]"
+              style={{
+                backgroundColor: 'var(--ink)',
+                borderRadius: '3px',
+                padding: '28px',
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              <SessionCardInner s={s} />
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="hidden md:grid grid-cols-3 gap-4">
           {sessions.map((s, i) => (
             <motion.div
               key={s.num}
@@ -346,49 +442,57 @@ function CreatorOnboarding() {
                 border: '1px solid rgba(255,255,255,0.06)',
               }}
             >
-              <div
-                className="mb-6"
-                style={{
-                  fontFamily: 'var(--font-archivoblack)',
-                  fontSize: '48px',
-                  color: 'var(--yellow)',
-                  lineHeight: 1,
-                  letterSpacing: '-0.04em',
-                }}
-              >
-                {s.num}
-              </div>
-              <div
-                className="mb-3"
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '8px',
-                  letterSpacing: '0.12em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.25)',
-                }}
-              >
-                Session
-              </div>
-              <h3
-                className="mb-4 leading-snug"
-                style={{
-                  fontFamily: 'var(--font-archivoblack)',
-                  fontSize: '17px',
-                  color: 'white',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {s.title}
-              </h3>
-              <p style={{ fontSize: '13px', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 }}>
-                {s.detail}
-              </p>
+              <SessionCardInner s={s} />
             </motion.div>
           ))}
         </div>
       </div>
     </section>
+  )
+}
+
+function SessionCardInner({ s }: { s: { num: string; title: string; detail: string } }) {
+  return (
+    <>
+      <div
+        className="mb-6"
+        style={{
+          fontFamily: 'var(--font-archivoblack)',
+          fontSize: '48px',
+          color: 'var(--yellow)',
+          lineHeight: 1,
+          letterSpacing: '-0.04em',
+        }}
+      >
+        {s.num}
+      </div>
+      <div
+        className="mb-3"
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '8px',
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.25)',
+        }}
+      >
+        Session
+      </div>
+      <h3
+        className="mb-4 leading-snug"
+        style={{
+          fontFamily: 'var(--font-archivoblack)',
+          fontSize: '17px',
+          color: 'white',
+          letterSpacing: '-0.02em',
+        }}
+      >
+        {s.title}
+      </h3>
+      <p style={{ fontSize: '13px', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 }}>
+        {s.detail}
+      </p>
+    </>
   )
 }
 
@@ -459,10 +563,7 @@ function CreatorAgent() {
                 'Rejects what you would reject',
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3">
-                  <span
-                    className="flex-shrink-0 mt-1.5"
-                    style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: 'var(--yellow)', display: 'block' }}
-                  />
+                  <Dot dark />
                   <span style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65 }}>
                     {item}
                   </span>
@@ -715,7 +816,6 @@ function CreatorMonetisation() {
             <div className="flex flex-col gap-2" style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.75 }}>
               <p>You set pricing.</p>
               <p>Platform takes a percentage.</p>
-              <p>Everything else is yours.</p>
             </div>
           </motion.div>
         </div>
@@ -903,7 +1003,6 @@ function ClientUsage() {
           <Divider />
         </motion.div>
 
-        {/* Flow */}
         <motion.div {...fadeUp(0.08)} className="flex flex-wrap items-center gap-3 mb-12">
           {steps.map((step, i) => (
             <div key={step} className="flex items-center gap-3">
@@ -924,7 +1023,10 @@ function ClientUsage() {
           ))}
         </motion.div>
 
-        <motion.p {...fadeUp(0.12)} style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-dmSans)' }}>
+        <motion.p
+          {...fadeUp(0.12)}
+          style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-dmSans)' }}
+        >
           Session-based. Direct. No friction.
         </motion.p>
       </div>
@@ -1031,10 +1133,7 @@ function ClientMentorship() {
             <div className="flex flex-col gap-3">
               {['The decisions being made', 'The trade-offs being weighed', 'The thinking in action'].map((item) => (
                 <div key={item} className="flex items-start gap-3">
-                  <span
-                    className="flex-shrink-0 mt-2"
-                    style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: 'var(--yellow)', display: 'block' }}
-                  />
+                  <Dot />
                   <span style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>
                     {item}
                   </span>
