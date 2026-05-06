@@ -3,12 +3,11 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import ControlStrip from '@/components/ControlStrip'
 import { EASE_OUT_EXPO } from '@/lib/motion'
 
 type View = 'creators' | 'clients'
 
-// ─── Shared animation ────────────────────────────────────────────────────────
+// ─── Animation helper ─────────────────────────────────────────────────────────
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -17,7 +16,7 @@ const fadeUp = (delay = 0) => ({
   transition: { duration: 0.6, delay, ease: EASE_OUT_EXPO },
 })
 
-// ─── Shared primitives ───────────────────────────────────────────────────────
+// ─── Shared primitives ────────────────────────────────────────────────────────
 
 function Label({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
   return (
@@ -51,7 +50,6 @@ function SectionHeading({
       : size === 'md'
       ? 'clamp(26px, 3.5vw, 44px)'
       : 'clamp(20px, 2.5vw, 32px)'
-
   return (
     <h2
       style={{
@@ -92,11 +90,11 @@ function Body({
   )
 }
 
-function Divider() {
+function Divider({ light = false }: { light?: boolean }) {
   return (
     <div
       className="w-8 mb-8 mt-1"
-      style={{ height: 2, backgroundColor: 'var(--yellow)', opacity: 0.7 }}
+      style={{ height: 2, backgroundColor: light ? 'rgba(255,255,255,0.2)' : 'var(--yellow)', opacity: 0.7 }}
     />
   )
 }
@@ -116,8 +114,9 @@ function Dot({ dark = false }: { dark?: boolean }) {
   )
 }
 
-// ─── Illustration placeholder ─────────────────────────────────────────────────
+// ─── Placeholder types ────────────────────────────────────────────────────────
 
+// Generic illustration slot
 function IllustrationPlaceholder({
   label,
   ratio = '2 / 1',
@@ -134,7 +133,7 @@ function IllustrationPlaceholder({
         aspectRatio: ratio,
         border: `2px dashed ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.12)'}`,
         borderRadius: '3px',
-        backgroundColor: dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+        backgroundColor: dark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
       }}
     >
       <span
@@ -154,7 +153,137 @@ function IllustrationPlaceholder({
   )
 }
 
-// ─── Sticky pill toggle (on scroll) ──────────────────────────────────────────
+// Photographic / texture slot — sells the research-studio feel
+function TexturePlaceholder({
+  label,
+  sub,
+  ratio = '4 / 3',
+  dark = false,
+}: {
+  label: string
+  sub?: string
+  ratio?: string
+  dark?: boolean
+}) {
+  return (
+    <div
+      className="w-full flex flex-col items-center justify-center gap-2"
+      style={{
+        aspectRatio: ratio,
+        border: `1px solid ${dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)'}`,
+        borderRadius: '2px',
+        backgroundColor: dark ? 'rgba(255,255,255,0.03)' : 'var(--off)',
+      }}
+    >
+      <span
+        style={{
+          fontFamily: 'var(--font-mono)',
+          fontSize: '8px',
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          color: dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)',
+        }}
+      >
+        Photo · {label}
+      </span>
+      {sub && (
+        <span
+          style={{
+            fontFamily: 'var(--font-dmSans)',
+            fontSize: '11px',
+            fontWeight: 300,
+            color: dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.18)',
+          }}
+        >
+          {sub}
+        </span>
+      )}
+    </div>
+  )
+}
+
+// Product screenshot / wireframe mockup — annotated
+function MockupPlaceholder({
+  title,
+  items,
+  dark = false,
+}: {
+  title: string
+  items: string[]
+  dark?: boolean
+}) {
+  return (
+    <div
+      className="w-full"
+      style={{
+        border: `1px solid ${dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.12)'}`,
+        borderRadius: '4px',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Mock chrome bar */}
+      <div
+        className="flex items-center gap-1.5 px-4 py-3"
+        style={{ borderBottom: `1px solid ${dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.08)'}`, backgroundColor: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}
+      >
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)', display: 'block' }}
+          />
+        ))}
+        <span
+          className="ml-3"
+          style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.1em', color: dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)', textTransform: 'uppercase' }}
+        >
+          {title}
+        </span>
+        <span
+          className="ml-auto"
+          style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', color: dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)', letterSpacing: '0.08em', textTransform: 'uppercase' }}
+        >
+          Screenshot / Live preview
+        </span>
+      </div>
+      <div className="p-5 flex flex-col gap-2.5">
+        {items.map((item, i) => (
+          <div key={i} className="flex items-start gap-3">
+            <span
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: '2px',
+                backgroundColor: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                fontFamily: 'var(--font-mono)',
+                fontSize: '7px',
+                color: dark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)',
+              }}
+            >
+              {i + 1}
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-dmSans)',
+                fontSize: '12px',
+                fontWeight: 300,
+                color: dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.4)',
+                lineHeight: 1.55,
+              }}
+            >
+              {item}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Sticky pill toggle (visible after header scrolls away) ───────────────────
 
 function PillToggle({ view, setView }: { view: View; setView: (v: View) => void }) {
   return (
@@ -190,7 +319,7 @@ function PillToggle({ view, setView }: { view: View; setView: (v: View) => void 
   )
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function HowItWorksPage() {
   const [view, setView] = useState<View>('creators')
@@ -208,7 +337,7 @@ export default function HowItWorksPage() {
 
   return (
     <main>
-      {/* Sticky toggle bar — appears after header scrolls away */}
+      {/* Sticky toggle — slides in once header scrolls away */}
       <AnimatePresence>
         {showStickyToggle && (
           <motion.div
@@ -232,23 +361,11 @@ export default function HowItWorksPage() {
 
       <AnimatePresence mode="wait">
         {view === 'creators' ? (
-          <motion.div
-            key="creators"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-          >
+          <motion.div key="creators" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             <CreatorView />
           </motion.div>
         ) : (
-          <motion.div
-            key="clients"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.18 }}
-          >
+          <motion.div key="clients" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }}>
             <ClientView />
           </motion.div>
         )}
@@ -257,7 +374,7 @@ export default function HowItWorksPage() {
   )
 }
 
-// ─── Page header (compact — toggle is the headline) ──────────────────────────
+// ─── Page header ──────────────────────────────────────────────────────────────
 
 function PageHeader({
   view,
@@ -268,6 +385,11 @@ function PageHeader({
   setView: (v: View) => void
   headerRef: React.RefObject<HTMLDivElement>
 }) {
+  const subtitles: Record<View, string> = {
+    creators: 'A system built around how you actually think — shaped with you, owned by you.',
+    clients: 'Real expertise, structured into agents you can actually work with.',
+  }
+
   return (
     <section
       ref={headerRef}
@@ -287,6 +409,7 @@ function PageHeader({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, delay: 0.05, ease: EASE_OUT_EXPO }}
+          className="mb-5"
           style={{
             fontFamily: 'var(--font-archivoblack)',
             fontSize: 'clamp(36px, 6vw, 80px)',
@@ -295,7 +418,7 @@ function PageHeader({
             lineHeight: 1.0,
           }}
         >
-          How it works for
+          How Genus works for
           <br />
           <button
             onClick={() => setView('creators')}
@@ -333,6 +456,26 @@ function PageHeader({
             Clients
           </button>
         </motion.h1>
+
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={view}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.25, ease: EASE_OUT_EXPO }}
+            style={{
+              fontFamily: 'var(--font-dmSans)',
+              fontSize: '16px',
+              fontWeight: 300,
+              color: 'rgba(255,255,255,0.4)',
+              lineHeight: 1.6,
+              maxWidth: '480px',
+            }}
+          >
+            {subtitles[view]}
+          </motion.p>
+        </AnimatePresence>
       </div>
     </section>
   )
@@ -345,364 +488,69 @@ function PageHeader({
 function CreatorView() {
   return (
     <>
-      <CreatorReframe />
-      <CreatorOnboarding />
-      <CreatorAgent />
-      <CreatorShadow />
-      <CreatorPerformance />
-      <CreatorIP />
-      <CreatorMonetisation />
+      <CreatorBelief />
+      <CreatorWorkshop />
+      <CreatorSystem />
+      <CreatorCritiqueLoop />
+      <CreatorProtection />
+      <CreatorEarnings />
+      <CreatorDeployment />
       <CreatorClose />
     </>
   )
 }
 
-// C1 — Reframe ───────────────────────────────────────────────────────────────
+// C1 — Belief ─────────────────────────────────────────────────────────────────
 
-function CreatorReframe() {
+function CreatorBelief() {
   return (
-    <section className="bg-white px-5 md:px-12 py-20 md:py-28">
+    <section className="bg-white px-5 md:px-12 py-24 md:py-36">
       <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start mb-14">
-          <motion.div {...fadeUp(0)}>
-            <Label>What this is</Label>
-            <SectionHeading size="lg">
-              You&rsquo;re not building a tool.
-              <br />
-              You&rsquo;re codifying how you think.
-            </SectionHeading>
-            <Divider />
-            <div
-              className="flex flex-col gap-2"
-              style={{
-                fontFamily: 'var(--font-dmSans)',
-                fontSize: '17px',
-                fontWeight: 300,
-                color: 'var(--mid)',
-                lineHeight: 1.75,
-              }}
-            >
-              <p>This isn&rsquo;t prompts.</p>
-              <p>It&rsquo;s not content.</p>
-              <p>It&rsquo;s not training data.</p>
-              <br />
-              <p>It&rsquo;s your judgment.</p>
-              <p>Your taste.</p>
-              <p>Your decisions under pressure.</p>
-              <br />
-              <p style={{ color: 'var(--ink)', fontWeight: 400 }}>Structured. Captured. Working.</p>
-            </div>
-          </motion.div>
-
-          <motion.div {...fadeUp(0.1)}>
-            <IllustrationPlaceholder label="Illustration — what gets captured" ratio="3 / 4" />
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// C2 — Onboarding ────────────────────────────────────────────────────────────
-
-function CreatorOnboarding() {
-  const sessions = [
-    {
-      num: '01',
-      title: 'Mapping how you approach problems.',
-      detail: 'We surface your instincts, defaults, and the heuristics you apply before you even notice you are applying them.',
-    },
-    {
-      num: '02',
-      title: 'Pressure testing decisions and edge cases.',
-      detail: 'Where do you hold the line? What would you never do? What does good enough look like versus genuinely right?',
-    },
-    {
-      num: '03',
-      title: 'Refining until it sounds like you.',
-      detail: 'Iteration with you in the room. Not until it is accurate — until it is indistinguishable.',
-    },
-  ]
-
-  return (
-    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
-      <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="max-w-2xl mb-16">
-          <Label>The process</Label>
-          <SectionHeading size="md">
-            We don&rsquo;t upload your work.
+        <motion.div {...fadeUp(0)} className="max-w-2xl mb-20">
+          <SectionHeading size="lg">
+            Great work isn&rsquo;t just output.
             <br />
-            We extract how you think.
+            It&rsquo;s judgment.
           </SectionHeading>
           <Divider />
           <div
-            className="flex flex-col gap-2 mb-8"
-            style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
-          >
-            <p>You don&rsquo;t fill in forms.</p>
-            <p>You don&rsquo;t dump files.</p>
-            <br />
-            <p>We work with you directly.</p>
-            <p>Three focused sessions designed to surface:</p>
-          </div>
-          <div className="flex flex-col gap-2">
-            {[
-              'How you make decisions',
-              'What you optimise for',
-              'Where you draw the line',
-              'What you would never do',
-            ].map((item) => (
-              <div key={item} className="flex items-start gap-3">
-                <Dot />
-                <span style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>
-                  {item}
-                </span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Session cards — horizontal scroll on mobile, grid on desktop */}
-        <div className="md:hidden flex gap-4 overflow-x-auto pb-4 -mx-5 px-5">
-          {sessions.map((s, i) => (
-            <motion.div
-              key={s.num}
-              {...fadeUp(i * 0.08)}
-              className="flex-shrink-0 w-[280px]"
-              style={{
-                backgroundColor: 'var(--ink)',
-                borderRadius: '3px',
-                padding: '28px',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              <SessionCardInner s={s} />
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="hidden md:grid grid-cols-3 gap-4 mb-14">
-          {sessions.map((s, i) => (
-            <motion.div
-              key={s.num}
-              {...fadeUp(i * 0.08)}
-              style={{
-                backgroundColor: 'var(--ink)',
-                borderRadius: '3px',
-                padding: '28px',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              <SessionCardInner s={s} />
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div {...fadeUp(0.2)}>
-          <IllustrationPlaceholder label="Illustration — the extraction session" ratio="16 / 6" />
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
-function SessionCardInner({ s }: { s: { num: string; title: string; detail: string } }) {
-  return (
-    <>
-      <div
-        className="mb-6"
-        style={{
-          fontFamily: 'var(--font-archivoblack)',
-          fontSize: '48px',
-          color: 'var(--yellow)',
-          lineHeight: 1,
-          letterSpacing: '-0.04em',
-        }}
-      >
-        {s.num}
-      </div>
-      <div
-        className="mb-3"
-        style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: '8px',
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.25)',
-        }}
-      >
-        Session
-      </div>
-      <h3
-        className="mb-4 leading-snug"
-        style={{
-          fontFamily: 'var(--font-archivoblack)',
-          fontSize: '17px',
-          color: 'white',
-          letterSpacing: '-0.02em',
-        }}
-      >
-        {s.title}
-      </h3>
-      <p style={{ fontSize: '13px', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 }}>
-        {s.detail}
-      </p>
-    </>
-  )
-}
-
-// C3 — The Agent ─────────────────────────────────────────────────────────────
-
-function CreatorAgent() {
-  return (
-    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--ink)' }}>
-      <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="mb-16">
-          <Label light>The output</Label>
-          <SectionHeading size="lg" dark>
-            This is your agent.
-          </SectionHeading>
-          <Divider />
-          <p
+            className="flex flex-col gap-4"
             style={{
+              fontFamily: 'var(--font-dmSans)',
               fontSize: '17px',
               fontWeight: 300,
-              color: 'rgba(255,255,255,0.4)',
-              fontFamily: 'var(--font-dmSans)',
+              color: 'var(--mid)',
+              lineHeight: 1.8,
             }}
           >
-            Not shared. Not blended. Not generic.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 mb-14">
-          <motion.div {...fadeUp(0.06)}>
-            <div
-              className="mb-4"
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '9px',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.2)',
-              }}
-            >
-              Architecture
-            </div>
-            <p style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75 }}>
-              Your agent is built as your layer.
-              <br />
-              Separate from the base model.
-              <br />
-              Never merged.
+            <p>
+              The best people in any field aren&rsquo;t following a process.
+              They&rsquo;re applying years of instinct, taste, and decisions made under pressure.
+              That&rsquo;s the part that&rsquo;s hard to see, hard to teach, and impossible for generic AI to fake.
             </p>
-          </motion.div>
-
-          <motion.div {...fadeUp(0.12)}>
-            <div
-              className="mb-4"
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '9px',
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'rgba(255,255,255,0.2)',
-              }}
-            >
-              Behaviour
-            </div>
-            <div className="flex flex-col gap-3">
-              {[
-                'Makes similar calls to you',
-                'Prioritises the same things',
-                'Rejects what you would reject',
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <Dot dark />
-                  <span style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65 }}>
-                    {item}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-
-        <motion.div {...fadeUp(0.15)}>
-          <IllustrationPlaceholder label="Illustration — agent architecture / your layer" ratio="16 / 5" dark />
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
-// C4 — Shadow Agent ──────────────────────────────────────────────────────────
-
-function CreatorShadow() {
-  return (
-    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: '#0d0d0b' }}>
-      <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="max-w-2xl mb-12">
-          <Label light>Quality system</Label>
-          <SectionHeading size="md" dark>
-            And the system that watches it.
-          </SectionHeading>
-          <Divider />
-          <Body dark className="mb-8">
-            Alongside your agent is a second layer.
-            <br />
-            A shadow system that runs in parallel.
-          </Body>
+            <p>It&rsquo;s also the part Genus is built around.</p>
+          </div>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-          {[
-            { label: 'Tracks outputs', sub: 'Every session logged against your baseline.' },
-            { label: 'Detects drift', sub: 'Flags when responses diverge from your pattern.' },
-            { label: 'Surfaces weak spots', sub: 'Identifies where the model hesitates or hedges.' },
-            { label: 'Highlights failure cases', sub: 'Shows you what it got wrong and why.' },
-          ].map((item, i) => (
-            <motion.div
-              key={item.label}
-              {...fadeUp(i * 0.07)}
-              className="p-5"
-              style={{
-                backgroundColor: 'rgba(255,255,255,0.04)',
-                borderRadius: '3px',
-                border: '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              <div
-                className="mb-3"
-                style={{
-                  fontFamily: 'var(--font-archivoblack)',
-                  fontSize: '13px',
-                  color: 'white',
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                {item.label}
-              </div>
-              <p style={{ fontSize: '12px', fontWeight: 300, color: 'rgba(255,255,255,0.35)', lineHeight: 1.65 }}>
-                {item.sub}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div {...fadeUp(0.1)}>
+        {/* Pull-quote breaker — typography only, no image */}
+        <motion.div
+          {...fadeUp(0.1)}
+          className="py-14 md:py-20"
+          style={{ borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)' }}
+        >
           <p
             style={{
               fontFamily: 'var(--font-archivoblack)',
-              fontSize: 'clamp(22px, 3.5vw, 40px)',
-              color: 'white',
+              fontSize: 'clamp(22px, 3.5vw, 44px)',
+              color: 'var(--ink)',
               letterSpacing: '-0.03em',
               lineHeight: 1.1,
+              maxWidth: '700px',
             }}
           >
-            It doesn&rsquo;t just run.
+            Your value isn&rsquo;t just what you make.
             <br />
-            <span style={{ color: 'var(--yellow)' }}>It gets better.</span>
+            <span style={{ color: 'var(--yellow)' }}>It&rsquo;s how you think through things.</span>
           </p>
         </motion.div>
       </div>
@@ -710,31 +558,509 @@ function CreatorShadow() {
   )
 }
 
-// C5 — Performance ───────────────────────────────────────────────────────────
+// C2 — Workshop ───────────────────────────────────────────────────────────────
 
-function CreatorPerformance() {
-  const cards = [
-    { label: 'Sessions', body: 'Every interaction logged.' },
-    { label: 'Edge cases', body: 'Where it fails. Where it needs work.' },
-    { label: 'Benchmark', body: 'Compared against industry-level outputs.' },
-  ]
+const WORKSHOP_PHASES = [
+  {
+    num: '01',
+    week: 'Week one',
+    title: 'Discover',
+    body: 'Two afternoons of conversation. We map your references, your instincts, the moves you make without thinking. The first surprise is usually your own.',
+    texture: 'Pinned reference card',
+  },
+  {
+    num: '02',
+    week: 'Week two',
+    title: 'Challenge',
+    body: 'Custom exercises built on what we heard. This-or-that decisions. Live critiques. Edge cases. Where do you draw the line, and why?',
+    texture: 'Transcript snippet',
+  },
+  {
+    num: '03',
+    week: 'Week three',
+    title: 'Refine',
+    body: 'Pressure-testing the system against real briefs. You see how it reasons. You correct it. It learns the why, not just the what.',
+    texture: 'Scanned notes',
+  },
+  {
+    num: '04',
+    week: 'Ongoing',
+    title: 'Calibrate',
+    body: 'The system stays in dialogue with you. Live feedback, comparison rounds, refinement. It doesn’t drift — because you’re still in the loop.',
+    texture: 'Calibration log',
+  },
+]
 
+function CreatorWorkshop() {
+  return (
+    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
+      <div className="max-w-5xl mx-auto">
+        <motion.div {...fadeUp(0)} className="mb-16">
+          <Label>The process</Label>
+          <SectionHeading size="md">
+            We build it with you.
+            <br />
+            Over weeks, not minutes.
+          </SectionHeading>
+          <Divider />
+          <div
+            className="flex flex-col gap-3 max-w-xl"
+            style={{ fontFamily: 'var(--font-dmSans)', fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
+          >
+            <p>No uploads. No scraping. No &ldquo;connect your Drive.&rdquo;</p>
+            <p>
+              Genus starts with conversations — the kind of structured, reflective work most experts have never been asked to do on themselves.
+              Most of our creators tell us the workshop revealed as much to them as it did to us.
+            </p>
+            <p>
+              Our team comes from UX, service design and research — designing systems around how people actually work is what we do.
+              Genus applies that to expertise itself.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Four phases */}
+        <div className="flex flex-col gap-0">
+          {WORKSHOP_PHASES.map((phase, i) => (
+            <motion.div
+              key={phase.num}
+              {...fadeUp(i * 0.07)}
+              className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-8 py-10"
+              style={{ borderTop: '1px solid var(--rule)' }}
+            >
+              <div>
+                <div className="flex items-baseline gap-4 mb-4">
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-archivoblack)',
+                      fontSize: '32px',
+                      color: 'var(--yellow)',
+                      letterSpacing: '-0.04em',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {phase.num}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '9px',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      color: 'var(--muted)',
+                    }}
+                  >
+                    {phase.week}
+                  </span>
+                </div>
+                <h3
+                  className="mb-3"
+                  style={{
+                    fontFamily: 'var(--font-archivoblack)',
+                    fontSize: '22px',
+                    color: 'var(--ink)',
+                    letterSpacing: '-0.03em',
+                  }}
+                >
+                  {phase.title}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: 'var(--font-dmSans)',
+                    fontSize: '15px',
+                    fontWeight: 300,
+                    color: 'var(--mid)',
+                    lineHeight: 1.7,
+                    maxWidth: '520px',
+                  }}
+                >
+                  {phase.body}
+                </p>
+              </div>
+              <div className="hidden md:block self-center">
+                <TexturePlaceholder label={phase.texture} ratio="4 / 3" />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Quote slot */}
+        <motion.div
+          {...fadeUp(0.1)}
+          className="mt-14 px-7 py-8"
+          style={{
+            borderLeft: '2px solid var(--yellow)',
+            backgroundColor: 'white',
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-dmSans)',
+              fontSize: '16px',
+              fontWeight: 300,
+              color: 'var(--mid)',
+              lineHeight: 1.7,
+              fontStyle: 'italic',
+            }}
+          >
+            &ldquo;I learned things about how I work that I&rsquo;d never put into words before.&rdquo;
+          </p>
+          <p
+            className="mt-3"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '9px',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'var(--yellow)',
+            }}
+          >
+            [Creator name, discipline] — placeholder until first creator is live
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// C3 — What gets built ────────────────────────────────────────────────────────
+
+function CreatorSystem() {
+  const inputs = ['References', 'Process', 'Taste', 'Decisions', 'Critique', 'Edge cases']
+
+  return (
+    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--ink)' }}>
+      <div className="max-w-5xl mx-auto">
+        <motion.div {...fadeUp(0)} className="mb-14">
+          <Label light>The output</Label>
+          <SectionHeading size="lg" dark>
+            Not a clone.
+            <br />
+            A working model of your judgment.
+          </SectionHeading>
+          <Divider light />
+          <p
+            className="max-w-xl"
+            style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
+          >
+            The system holds the things that make your work yours: the references you reach for,
+            the decisions you make under pressure, the things you&rsquo;d never do, and the reasons behind all of it.
+            It uses those to think through new problems — not to imitate past ones.
+          </p>
+        </motion.div>
+
+        {/* Signal diagram */}
+        <motion.div {...fadeUp(0.1)} className="mb-10">
+          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-6 md:gap-0">
+            {/* Input signals */}
+            <div className="flex flex-col justify-center gap-3 md:mr-8">
+              {inputs.map((input, i) => (
+                <div key={input} className="flex items-center gap-3">
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-dmSans)',
+                      fontSize: '13px',
+                      fontWeight: 300,
+                      color: 'rgba(255,255,255,0.45)',
+                      minWidth: '90px',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {input}
+                  </span>
+                  <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '12px' }}>→</span>
+                </div>
+              ))}
+            </div>
+            {/* Centre block */}
+            <div className="flex items-center">
+              <div
+                className="flex flex-col items-center justify-center px-8 py-6"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '3px',
+                  minWidth: '140px',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: 'var(--font-archivoblack)',
+                    fontSize: '13px',
+                    color: 'var(--yellow)',
+                    letterSpacing: '-0.01em',
+                    textAlign: 'center',
+                    lineHeight: 1.4,
+                  }}
+                >
+                  GENUS
+                  <br />
+                  SYSTEM
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div {...fadeUp(0.15)}>
+          <p
+            style={{
+              fontFamily: 'var(--font-archivoblack)',
+              fontSize: 'clamp(18px, 2.5vw, 28px)',
+              color: 'rgba(255,255,255,0.6)',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            Not a replacement for you.{' '}
+            <span style={{ color: 'white' }}>An extension of how you think.</span>
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// C4 — Critique loop ──────────────────────────────────────────────────────────
+
+const LOOP_SEQUENCE = [0, 1, 2, 3, 2, 3, 2, 3, 4]
+const LOOP_STEPS = ['Brief', 'Draft', 'Critique', 'Refine', 'Deliver']
+
+function CritiqueLoopVisual() {
+  const [seqIdx, setSeqIdx] = useState(0)
+  const active = LOOP_SEQUENCE[seqIdx]
+  const isLooping = seqIdx >= 2 && seqIdx <= 7 && active >= 2 && active <= 3
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSeqIdx((i) => (i + 1) % LOOP_SEQUENCE.length)
+    }, 820)
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 md:gap-0">
+      {LOOP_STEPS.map((step, i) => {
+        const isActive = active === i
+        const isLoopStep = i === 2 || i === 3
+        return (
+          <div key={step} className="flex items-center gap-2 md:gap-0">
+            <motion.span
+              animate={{
+                color: isActive ? 'var(--ink)' : 'rgba(255,255,255,0.3)',
+                backgroundColor: isActive ? 'var(--yellow)' : 'transparent',
+              }}
+              transition={{ duration: 0.2 }}
+              style={{
+                fontFamily: 'var(--font-archivoblack)',
+                fontSize: 'clamp(15px, 2.2vw, 22px)',
+                letterSpacing: '-0.02em',
+                padding: '4px 10px',
+                borderRadius: '3px',
+                display: 'inline-block',
+                border: `1px solid ${isActive ? 'var(--yellow)' : isLoopStep && isLooping ? 'rgba(255,255,255,0.2)' : 'transparent'}`,
+              }}
+            >
+              {step}
+            </motion.span>
+            {i < LOOP_STEPS.length - 1 && (
+              <span
+                style={{
+                  color: 'rgba(255,255,255,0.15)',
+                  fontSize: '14px',
+                  margin: '0 4px',
+                  display: 'inline-block',
+                }}
+              >
+                →
+              </span>
+            )}
+          </div>
+        )
+      })}
+      <AnimatePresence>
+        {isLooping && (
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="ml-4"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '9px',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'var(--yellow)',
+            }}
+          >
+            ↺ critique loop
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function CreatorCritiqueLoop() {
+  return (
+    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: '#0d0d0b' }}>
+      <div className="max-w-5xl mx-auto">
+        <motion.div {...fadeUp(0)} className="mb-14">
+          <Label light>The critique loop</Label>
+          <SectionHeading size="md" dark>
+            The point isn&rsquo;t what it generates.
+            <br />
+            It&rsquo;s what it rejects.
+          </SectionHeading>
+          <Divider light />
+          <p
+            className="max-w-xl"
+            style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
+          >
+            Most AI systems produce. A Genus system produces, then critiques itself against your standards —
+            the same way you would in a review. That loop is what makes the output feel like yours, not like everyone else&rsquo;s.
+          </p>
+        </motion.div>
+
+        {/* Animated loop visual */}
+        <motion.div {...fadeUp(0.08)} className="mb-16 p-6 md:p-10" style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '3px', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <CritiqueLoopVisual />
+        </motion.div>
+
+        {/* Before / after example */}
+        <motion.div {...fadeUp(0.12)} className="mb-6">
+          <div
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '9px',
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.25)',
+              marginBottom: '16px',
+            }}
+          >
+            Same brief. Two responses.
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Generic AI */}
+            <div
+              className="p-6"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.04)',
+                borderRadius: '3px',
+                border: '1px solid rgba(255,255,255,0.07)',
+              }}
+            >
+              <div
+                className="mb-4"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '8px',
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.2)',
+                }}
+              >
+                Generic AI
+              </div>
+              <p
+                style={{
+                  fontFamily: 'var(--font-dmSans)',
+                  fontSize: '14px',
+                  fontWeight: 300,
+                  color: 'rgba(255,255,255,0.35)',
+                  lineHeight: 1.7,
+                  fontStyle: 'italic',
+                }}
+              >
+                &ldquo;Here are five potential directions for the campaign, ranging from minimalist to bold...&rdquo;
+              </p>
+            </div>
+            {/* Genus agent */}
+            <div
+              className="p-6"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.07)',
+                borderRadius: '3px',
+                border: '1px solid rgba(255,200,0,0.2)',
+              }}
+            >
+              <div
+                className="mb-4"
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '8px',
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: 'var(--yellow)',
+                }}
+              >
+                Genus agent — [Expert name]
+              </div>
+              <p
+                style={{
+                  fontFamily: 'var(--font-dmSans)',
+                  fontSize: '14px',
+                  fontWeight: 300,
+                  color: 'rgba(255,255,255,0.65)',
+                  lineHeight: 1.7,
+                  fontStyle: 'italic',
+                }}
+              >
+                &ldquo;I&rsquo;d push the editorial direction, not the typographic one. The type approach leans on a trend that&rsquo;ll date by Q3 — I&rsquo;ve seen this exact treatment three times this year.
+                The editorial route holds longer and gives the brand somewhere to grow into.&rdquo;
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// C5 — Protection and control ─────────────────────────────────────────────────
+
+const PROTECTION_PILLARS = [
+  {
+    label: 'Separated',
+    body: 'Your layer is structurally distinct from any base model. It doesn’t get absorbed.',
+  },
+  {
+    label: 'Attributed',
+    body: 'Every session traces back to your system. You see what was generated, for whom, and when.',
+  },
+  {
+    label: 'Controlled',
+    body: 'Pause it, refine it, retire it. One switch.',
+  },
+  {
+    label: 'Transparent',
+    body: 'A live dashboard of usage, performance, and earnings.',
+  },
+]
+
+function CreatorProtection() {
   return (
     <section className="bg-white px-5 md:px-12 py-20 md:py-28">
       <div className="max-w-5xl mx-auto">
         <motion.div {...fadeUp(0)} className="mb-14">
-          <Label>Performance</Label>
-          <SectionHeading size="md">
-            You see how your thinking performs.
-          </SectionHeading>
+          <Label>Protection and control</Label>
+          <SectionHeading size="md">Your expertise stays yours.</SectionHeading>
           <Divider />
+          <p
+            className="max-w-lg"
+            style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
+          >
+            You see how it&rsquo;s used. You decide who uses it. You can pause or pull it at any time.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-          {cards.map((c, i) => (
+        {/* Four pillars */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-14">
+          {PROTECTION_PILLARS.map((p, i) => (
             <motion.div
-              key={c.label}
-              {...fadeUp(i * 0.08)}
+              key={p.label}
+              {...fadeUp(i * 0.07)}
               className="p-6"
               style={{
                 backgroundColor: 'var(--off)',
@@ -745,17 +1071,110 @@ function CreatorPerformance() {
               <div
                 className="mb-3"
                 style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '9px',
-                  letterSpacing: '0.14em',
+                  fontFamily: 'var(--font-archivoblack)',
+                  fontSize: '14px',
+                  color: 'var(--ink)',
+                  letterSpacing: '-0.01em',
                   textTransform: 'uppercase',
-                  color: 'var(--yellow)',
                 }}
               >
-                {c.label}
+                {p.label}
               </div>
-              <p style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>
-                {c.body}
+              <p style={{ fontSize: '13px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>
+                {p.body}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Dashboard mockup */}
+        <motion.div {...fadeUp(0.12)}>
+          <MockupPlaceholder
+            title="Your Genus — [Creator name]"
+            items={[
+              'Top metrics: Sessions this month / Active clients / Earnings to date',
+              'Usage graph: last 30 days — sessions per day with comparison to prior period',
+              'Activity feed: "Brand strategy session with [client]. 14 exchanges. 2 critique cycles."',
+              'Calibration tile: "3 outputs flagged for your review →"',
+              'Control panel: availability toggle, pricing, pause agent',
+            ]}
+          />
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// C6 — How creators earn ──────────────────────────────────────────────────────
+
+const EARNING_MODELS = [
+  {
+    label: 'Revenue share',
+    body: 'You earn a percentage of every session your agent runs. Higher upside, variable month to month. Suits creators who want their agent working at scale.',
+  },
+  {
+    label: 'Licensing',
+    body: 'A fixed fee per client engagement, agreed up front. Predictable, closer to how consulting already works. Suits creators who want fewer, deeper relationships.',
+  },
+  {
+    label: 'Retainer',
+    body: 'A monthly base for keeping your agent live and calibrated, with session fees on top. Suits creators who want a stable floor under the variable income.',
+  },
+]
+
+function CreatorEarnings() {
+  return (
+    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
+      <div className="max-w-5xl mx-auto">
+        <motion.div {...fadeUp(0)} className="mb-14">
+          <Label>How creators earn</Label>
+          <SectionHeading size="md">
+            We&rsquo;re still figuring this part out
+            <br />
+            — with you.
+          </SectionHeading>
+          <Divider />
+          <div
+            className="flex flex-col gap-3 max-w-xl"
+            style={{ fontFamily: 'var(--font-dmSans)', fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
+          >
+            <p>
+              Different creators want different things. Some want the predictability of a retainer.
+              Some want upside on every session. Some want to license their agent to specific clients and stay close to the work.
+            </p>
+            <p>
+              We&rsquo;re building the model in conversation with the people on the platform.
+              Here are the directions we&rsquo;re exploring.
+            </p>
+          </div>
+        </motion.div>
+
+        {/* Three pricing cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+          {EARNING_MODELS.map((m, i) => (
+            <motion.div
+              key={m.label}
+              {...fadeUp(i * 0.08)}
+              className="p-7"
+              style={{
+                backgroundColor: 'var(--ink)',
+                borderRadius: '3px',
+                border: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              <div
+                className="mb-4"
+                style={{
+                  fontFamily: 'var(--font-archivoblack)',
+                  fontSize: '17px',
+                  color: 'var(--yellow)',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                {m.label}
+              </div>
+              <p style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
+                {m.body}
               </p>
             </motion.div>
           ))}
@@ -763,143 +1182,81 @@ function CreatorPerformance() {
 
         <motion.p
           {...fadeUp(0.1)}
-          style={{
-            fontSize: '13px',
-            fontWeight: 300,
-            color: 'var(--muted)',
-            fontFamily: 'var(--font-dmSans)',
-          }}
+          className="mb-8"
+          style={{ fontSize: '14px', fontWeight: 300, color: 'var(--mid)', fontFamily: 'var(--font-dmSans)' }}
         >
-          Not vanity metrics. Actual performance.
+          Most creators we&rsquo;ve spoken to want a mix. We&rsquo;re designing for that.
+        </motion.p>
+
+        <motion.div {...fadeUp(0.12)}>
+          <Link
+            href="/apply"
+            style={{
+              fontFamily: 'var(--font-dmSans)',
+              fontSize: '14px',
+              fontWeight: 300,
+              color: 'var(--ink)',
+              textDecoration: 'underline',
+              textUnderlineOffset: '3px',
+            }}
+          >
+            Tell us what would work for you &rarr;
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// C7 — Deployment ─────────────────────────────────────────────────────────────
+
+function CreatorDeployment() {
+  return (
+    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--ink)' }}>
+      <div className="max-w-5xl mx-auto">
+        <motion.div {...fadeUp(0)} className="mb-10">
+          <Label light>Deployment</Label>
+          <SectionHeading size="lg" dark>
+            Your thinking. Working further
+            <br />
+            than your hours allow.
+          </SectionHeading>
+          <Divider light />
+        </motion.div>
+
+        <motion.div {...fadeUp(0.08)} className="flex flex-col gap-4 mb-12">
+          {[
+            'Your agent is hired.',
+            'Sessions run.',
+            'You stay in the loop.',
+          ].map((line, i) => (
+            <p
+              key={i}
+              style={{
+                fontFamily: 'var(--font-archivoblack)',
+                fontSize: 'clamp(20px, 3vw, 32px)',
+                color: i === 2 ? 'var(--yellow)' : 'white',
+                letterSpacing: '-0.03em',
+                lineHeight: 1.05,
+              }}
+            >
+              {line}
+            </p>
+          ))}
+        </motion.div>
+
+        <motion.p
+          {...fadeUp(0.12)}
+          style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: '440px', fontFamily: 'var(--font-dmSans)' }}
+        >
+          The point isn&rsquo;t to replace your work. It&rsquo;s to let your judgment scale past the bottleneck of your own time.
         </motion.p>
       </div>
     </section>
   )
 }
 
-// C6 — IP Protection ─────────────────────────────────────────────────────────
-
-function CreatorIP() {
-  const blocks = [
-    { num: '01', label: 'Separation', body: 'Your model layer stays isolated (LoRA adapter structure).' },
-    { num: '02', label: 'Access', body: 'Inference-only. No weight exposure.' },
-    { num: '03', label: 'Attribution', body: 'Every session tied to your agent.' },
-    { num: '04', label: 'Control', body: 'Pause. Restrict. Remove.' },
-    { num: '05', label: 'Structure', body: 'Protected as a trade secret.' },
-  ]
-
-  return (
-    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
-      <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="mb-14">
-          <Label>IP protection</Label>
-          <SectionHeading size="md">
-            Your IP. Protected by design.
-          </SectionHeading>
-          <Divider />
-        </motion.div>
-
-        <div className="flex flex-col mb-10">
-          {blocks.map((b, i) => (
-            <motion.div
-              key={b.num}
-              {...fadeUp(i * 0.06)}
-              className="flex items-start gap-6 py-5"
-              style={{ borderBottom: '1px solid var(--rule)' }}
-            >
-              <span
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '9px',
-                  letterSpacing: '0.12em',
-                  color: 'var(--yellow)',
-                  flexShrink: 0,
-                  paddingTop: '3px',
-                }}
-              >
-                {b.num}
-              </span>
-              <div>
-                <div
-                  className="mb-1"
-                  style={{
-                    fontFamily: 'var(--font-archivoblack)',
-                    fontSize: '14px',
-                    color: 'var(--ink)',
-                    letterSpacing: '-0.01em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {b.label}
-                </div>
-                <p style={{ fontSize: '14px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>
-                  {b.body}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div {...fadeUp(0.1)}>
-          <ControlStrip />
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
-// C7 — Monetisation ──────────────────────────────────────────────────────────
-
-function CreatorMonetisation() {
-  return (
-    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--ink)' }}>
-      <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="mb-12">
-          <Label light>Revenue</Label>
-          <SectionHeading size="md" dark>
-            It works. You earn.
-          </SectionHeading>
-          <Divider />
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-20">
-          <motion.div {...fadeUp(0.06)}>
-            <div className="flex flex-col gap-2" style={{ fontSize: '17px', fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75 }}>
-              <p>Your agent is hired.</p>
-              <p>Sessions run.</p>
-              <p>You get paid.</p>
-            </div>
-          </motion.div>
-
-          <motion.div {...fadeUp(0.1)}>
-            <div className="flex flex-col gap-2" style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.4)', lineHeight: 1.75 }}>
-              <p>You set pricing.</p>
-              <p>Platform takes a percentage.</p>
-            </div>
-          </motion.div>
-        </div>
-
-        <motion.div {...fadeUp(0.12)}>
-          <p
-            style={{
-              fontFamily: 'var(--font-archivoblack)',
-              fontSize: 'clamp(28px, 4.5vw, 56px)',
-              color: 'white',
-              letterSpacing: '-0.04em',
-              lineHeight: 1.0,
-            }}
-          >
-            Your thinking.
-            <br />
-            <span style={{ color: 'var(--yellow)' }}>Working without you.</span>
-          </p>
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
-// C8 — Creator Close ─────────────────────────────────────────────────────────
+// C8 — Creator close ──────────────────────────────────────────────────────────
 
 function CreatorClose() {
   return (
@@ -920,20 +1277,33 @@ function CreatorClose() {
             <br />
             belongs to you.
             <br />
-            <span style={{ color: 'var(--yellow)' }}>Now it works like it.</span>
+            <span style={{ color: 'var(--yellow)' }}>Now it can scale with you.</span>
           </p>
 
           <Link
             href="/apply"
-            className="inline-flex items-center px-8 py-4 rounded-sm text-sm font-medium transition-opacity hover:opacity-90"
+            className="inline-flex items-center px-8 py-4 rounded-sm text-sm font-medium transition-opacity hover:opacity-90 mb-5"
             style={{
               fontFamily: 'var(--font-dmSans)',
               backgroundColor: 'var(--yellow)',
               color: 'var(--ink)',
+              display: 'inline-flex',
             }}
           >
             Apply as a creator &rarr;
           </Link>
+
+          <p
+            style={{
+              fontFamily: 'var(--font-dmSans)',
+              fontSize: '13px',
+              fontWeight: 300,
+              color: 'rgba(255,255,255,0.3)',
+              marginTop: '16px',
+            }}
+          >
+            We review applications weekly. If we&rsquo;re a fit, we&rsquo;ll be in touch within seven days.
+          </p>
         </motion.div>
       </div>
     </section>
@@ -947,48 +1317,112 @@ function CreatorClose() {
 function ClientView() {
   return (
     <>
-      <ClientReframe />
+      <ClientShift />
       <ClientValue />
-      <ClientUsage />
-      <ClientUseCases />
-      <ClientTeamModel />
-      <ClientMentorship />
+      <ClientHowItWorks />
+      <ClientTeamEffect />
+      <ClientDisciplines />
+      <ClientCombination />
       <ClientIntegration />
       <ClientClose />
     </>
   )
 }
 
-// CL1 — Reframe ──────────────────────────────────────────────────────────────
+// CL1 — The shift ─────────────────────────────────────────────────────────────
 
-function ClientReframe() {
+function ClientShift() {
   return (
-    <section className="bg-white px-5 md:px-12 py-20 md:py-28">
+    <section className="bg-white px-5 md:px-12 py-24 md:py-32">
       <div className="max-w-5xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-start">
-          <motion.div {...fadeUp(0)}>
-            <Label>What this is</Label>
-            <SectionHeading size="lg">
-              You&rsquo;re not hiring AI.
-              <br />
-              You&rsquo;re hiring how someone thinks.
-            </SectionHeading>
-            <Divider />
+        <motion.div {...fadeUp(0)} className="mb-14">
+          <SectionHeading size="lg">
+            You&rsquo;re not hiring AI.
+            <br />
+            You&rsquo;re hiring how
+            <br />
+            someone thinks.
+          </SectionHeading>
+          <Divider />
+          <p
+            className="max-w-lg"
+            style={{ fontSize: '17px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
+          >
+            Generic models give you generic answers. Genus agents are built around named experts —
+            their judgment, their standards, their refusals. You get a point of view, not a probability distribution.
+          </p>
+        </motion.div>
+
+        {/* Side-by-side comparison */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <motion.div
+            {...fadeUp(0.08)}
+            className="p-7"
+            style={{
+              backgroundColor: 'var(--off)',
+              borderRadius: '3px',
+              border: '1px solid var(--rule)',
+            }}
+          >
             <div
-              className="flex flex-col gap-2"
-              style={{ fontSize: '17px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
+              className="mb-4"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '9px',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'var(--muted)',
+              }}
             >
-              <p>Not generic outputs.</p>
-              <p>Not anonymous systems.</p>
-              <br />
-              <p style={{ color: 'var(--ink)', fontWeight: 400 }}>
-                Named expertise. Structured and usable.
-              </p>
+              Generic AI
             </div>
+            <p
+              style={{
+                fontFamily: 'var(--font-dmSans)',
+                fontSize: '14px',
+                fontWeight: 300,
+                color: 'var(--mid)',
+                lineHeight: 1.7,
+                fontStyle: 'italic',
+              }}
+            >
+              &ldquo;Here are five potential approaches you could consider, each with different trade-offs...&rdquo;
+            </p>
           </motion.div>
 
-          <motion.div {...fadeUp(0.1)}>
-            <IllustrationPlaceholder label="Illustration — named expertise" ratio="3 / 4" />
+          <motion.div
+            {...fadeUp(0.12)}
+            className="p-7"
+            style={{
+              backgroundColor: 'var(--ink)',
+              borderRadius: '3px',
+              border: '1px solid rgba(255,200,0,0.15)',
+            }}
+          >
+            <div
+              className="mb-4"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '9px',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'var(--yellow)',
+              }}
+            >
+              Genus agent
+            </div>
+            <p
+              style={{
+                fontFamily: 'var(--font-dmSans)',
+                fontSize: '14px',
+                fontWeight: 300,
+                color: 'rgba(255,255,255,0.65)',
+                lineHeight: 1.7,
+                fontStyle: 'italic',
+              }}
+            >
+              &ldquo;Two of these are wrong for your stage. The third is the one. Here&rsquo;s why, and here&rsquo;s what to watch for.&rdquo;
+            </p>
           </motion.div>
         </div>
       </div>
@@ -996,13 +1430,22 @@ function ClientReframe() {
   )
 }
 
-// CL2 — Value ────────────────────────────────────────────────────────────────
+// CL2 — What you get ──────────────────────────────────────────────────────────
 
 function ClientValue() {
   const cards = [
-    { label: 'Clarity', body: 'Cut through noise. Get to what matters.' },
-    { label: 'Direction', body: 'Work through ideas. Make progress.' },
-    { label: 'Judgment', body: 'Real decisions, not a list of options.' },
+    {
+      label: 'A position',
+      body: 'It picks a direction and tells you why. Not five options to choose between.',
+    },
+    {
+      label: 'A critique',
+      body: 'It pressure-tests your thinking before your team does.',
+    },
+    {
+      label: 'A refusal',
+      body: 'It tells you when something’s wrong — and what to do instead.',
+    },
   ]
 
   return (
@@ -1010,9 +1453,7 @@ function ClientValue() {
       <div className="max-w-5xl mx-auto">
         <motion.div {...fadeUp(0)} className="mb-14">
           <Label>What you get</Label>
-          <SectionHeading size="md">
-            A point of view you can use.
-          </SectionHeading>
+          <SectionHeading size="md">A working partner, not a generator.</SectionHeading>
           <Divider />
         </motion.div>
 
@@ -1049,81 +1490,192 @@ function ClientValue() {
   )
 }
 
-// CL3 — Usage ────────────────────────────────────────────────────────────────
+// CL3 — How you work with it ──────────────────────────────────────────────────
 
-function ClientUsage() {
-  const steps = ['Ask', 'Push', 'Refine', 'Decide']
+const CLIENT_STEPS = [
+  { label: 'Ask', detail: 'bring a brief, a draft, a problem' },
+  { label: 'Push', detail: 'it responds with a position, not a menu' },
+  { label: 'Refine', detail: 'you challenge it, it adjusts using the expert’s reasoning' },
+  { label: 'Decide', detail: 'you walk away with something usable' },
+]
 
+function ClientHowItWorks() {
   return (
     <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--ink)' }}>
       <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="mb-16">
+        <motion.div {...fadeUp(0)} className="mb-14">
           <Label light>How it feels</Label>
           <SectionHeading size="md" dark>
-            Work with it like you would them.
+            Work with it the way you&rsquo;d work with them.
           </SectionHeading>
-          <Divider />
+          <Divider light />
+          <p
+            className="max-w-lg"
+            style={{ fontSize: '15px', fontWeight: 300, color: 'rgba(255,255,255,0.45)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
+          >
+            Sessions, not chats. You bring a brief. The agent diagnoses the problem, pulls relevant references,
+            generates directions, critiques them against the expert&rsquo;s standards, and delivers a position you can act on.
+          </p>
         </motion.div>
 
-        <motion.div {...fadeUp(0.08)} className="flex flex-wrap items-center gap-3 mb-12">
-          {steps.map((step, i) => (
-            <div key={step} className="flex items-center gap-3">
+        {/* Process strip */}
+        <motion.div {...fadeUp(0.08)} className="flex flex-col gap-4 mb-14">
+          {CLIENT_STEPS.map((step, i) => (
+            <div
+              key={step.label}
+              className="flex items-start md:items-center gap-5 py-4"
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+            >
               <span
                 style={{
                   fontFamily: 'var(--font-archivoblack)',
-                  fontSize: 'clamp(20px, 3vw, 32px)',
+                  fontSize: 'clamp(18px, 2.5vw, 26px)',
                   color: i === 3 ? 'var(--yellow)' : 'white',
                   letterSpacing: '-0.03em',
+                  minWidth: '90px',
+                  flexShrink: 0,
                 }}
               >
-                {step}
+                {step.label}
               </span>
-              {i < steps.length - 1 && (
-                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '20px' }}>&rarr;</span>
-              )}
+              <span style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-dmSans)' }}>
+                — {step.detail}
+              </span>
             </div>
           ))}
         </motion.div>
 
-        <motion.div {...fadeUp(0.12)} className="mb-10">
-          <p style={{ fontSize: '14px', fontWeight: 300, color: 'rgba(255,255,255,0.35)', fontFamily: 'var(--font-dmSans)' }}>
-            Session-based. Direct. No friction.
-          </p>
-        </motion.div>
-
-        <motion.div {...fadeUp(0.16)}>
-          <IllustrationPlaceholder label="Illustration — a session in action" ratio="16 / 6" dark />
+        {/* Session view mockup */}
+        <motion.div {...fadeUp(0.12)}>
+          <MockupPlaceholder
+            title="Session view — Brand Strategy with [Expert name]"
+            dark
+            items={[
+              'Left rail: Active session with agent name, discipline, brief context',
+              'Main panel: real exchange — user question, agent position + rationale + references. "Challenge this" button visible.',
+              'Right rail: session context — brief, references in play, prior decisions in this session',
+              'Named expert · Reasoning visible · Reference trail · Challenge mode',
+            ]}
+          />
         </motion.div>
       </div>
     </section>
   )
 }
 
-// CL4 — Use Cases ────────────────────────────────────────────────────────────
+// CL4 — Team effect ───────────────────────────────────────────────────────────
 
-function ClientUseCases() {
-  const cases = [
-    { discipline: 'Brand Strategy', uses: 'Positioning, naming, critique' },
-    { discipline: 'Creative Direction', uses: 'Concepts, refinement, review' },
-    { discipline: 'UX / Product', uses: 'Flows, systems, edge cases' },
-    { discipline: 'Screenwriting', uses: 'Structure, character, voice' },
-  ]
+const TEAM_SCENARIOS = [
+  'A junior strategist drafts a positioning brief. The brand strategy agent pushes back on the wedge and explains why. The strategist rewrites — sharper than they would have alone.',
+  'A product designer runs a flow past the UX agent. It flags three edge cases their PM missed. The team ships a stronger spec.',
+  'A new hire ramps in weeks instead of months by working alongside an agent built on your discipline’s best thinking.',
+]
 
+function ClientTeamEffect() {
   return (
     <section className="bg-white px-5 md:px-12 py-20 md:py-28">
       <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="mb-14">
-          <Label>Disciplines</Label>
-          <SectionHeading size="md">Where it shows up.</SectionHeading>
+        <motion.div {...fadeUp(0)} className="mb-12">
+          <Label>For teams</Label>
+          <SectionHeading size="md">
+            Your team gets the senior reviewer
+            <br />
+            they don&rsquo;t have yet.
+          </SectionHeading>
+          <Divider />
+          <p
+            className="max-w-lg"
+            style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75, fontFamily: 'var(--font-dmSans)' }}
+          >
+            Junior team members don&rsquo;t just get answers. They see how a senior expert reasons through a problem —
+            what gets prioritised, what gets rejected, why. Over time, that exposure shapes how they think.
+          </p>
+        </motion.div>
+
+        <div className="flex flex-col gap-0 mb-16">
+          {TEAM_SCENARIOS.map((scenario, i) => (
+            <motion.div
+              key={i}
+              {...fadeUp(i * 0.07)}
+              className="flex items-start gap-6 py-7"
+              style={{ borderBottom: '1px solid var(--rule)' }}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '9px',
+                  color: 'var(--yellow)',
+                  flexShrink: 0,
+                  paddingTop: '4px',
+                  letterSpacing: '0.1em',
+                }}
+              >
+                0{i + 1}
+              </span>
+              <p
+                style={{
+                  fontFamily: 'var(--font-dmSans)',
+                  fontSize: '15px',
+                  fontWeight: 300,
+                  color: 'var(--mid)',
+                  lineHeight: 1.75,
+                }}
+              >
+                {scenario}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div {...fadeUp(0.1)}>
+          <p
+            style={{
+              fontFamily: 'var(--font-archivoblack)',
+              fontSize: 'clamp(22px, 3.5vw, 40px)',
+              color: 'var(--ink)',
+              letterSpacing: '-0.03em',
+              lineHeight: 1.1,
+            }}
+          >
+            This is how taste scales.
+            <br />
+            <span style={{ color: 'var(--yellow)' }}>Not through process documents. Through exposure.</span>
+          </p>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// CL5 — Disciplines ───────────────────────────────────────────────────────────
+
+const DISCIPLINES = [
+  { name: 'Brand Strategy', use: 'Pressure-test positioning before you commit' },
+  { name: 'Creative Direction', use: 'Sharpen concepts before review rounds' },
+  { name: 'UX / Product', use: 'Surface edge cases before they ship' },
+  { name: 'Editorial', use: 'Get a second read with a real point of view' },
+]
+
+function ClientDisciplines() {
+  return (
+    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
+      <div className="max-w-5xl mx-auto">
+        <motion.div {...fadeUp(0)} className="mb-12">
+          <Label>Where it shows up</Label>
+          <SectionHeading size="md">
+            Built for the work where judgment
+            <br />
+            actually matters.
+          </SectionHeading>
           <Divider />
         </motion.div>
 
-        <div className="flex flex-col">
-          {cases.map((c, i) => (
+        <div className="flex flex-col mb-8">
+          {DISCIPLINES.map((d, i) => (
             <motion.div
-              key={c.discipline}
+              key={d.name}
               {...fadeUp(i * 0.06)}
-              className="flex items-start md:items-center justify-between py-6 gap-4"
+              className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-8 py-6"
               style={{ borderBottom: '1px solid var(--rule)' }}
             >
               <div
@@ -1134,24 +1686,31 @@ function ClientUseCases() {
                   letterSpacing: '-0.02em',
                 }}
               >
-                {c.discipline}
+                {d.name}
               </div>
-              <div style={{ fontSize: '14px', fontWeight: 300, color: 'var(--mid)' }}>
-                {c.uses}
+              <div style={{ fontSize: '14px', fontWeight: 300, color: 'var(--mid)', fontFamily: 'var(--font-dmSans)' }}>
+                {d.use}
               </div>
             </motion.div>
           ))}
         </div>
+
+        <motion.p
+          {...fadeUp(0.1)}
+          style={{ fontSize: '12px', fontWeight: 300, color: 'var(--muted)', fontFamily: 'var(--font-dmSans)' }}
+        >
+          More disciplines added as we onboard new creators.
+        </motion.p>
       </div>
     </section>
   )
 }
 
-// CL5 — Team Model ───────────────────────────────────────────────────────────
+// CL6 — Combination ───────────────────────────────────────────────────────────
 
-function ClientTeamModel() {
+function ClientCombination() {
   return (
-    <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
+    <section className="bg-white px-5 md:px-12 py-20 md:py-28">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <motion.div {...fadeUp(0)}>
@@ -1162,92 +1721,49 @@ function ClientTeamModel() {
               Or a system of them.
             </SectionHeading>
             <Divider />
-            <Body>
-              Combine agents across disciplines.
-              Strategy, creative, product — working together on the same brief.
-              Each bringing their own point of view.
-            </Body>
-          </motion.div>
-
-          <motion.div {...fadeUp(0.1)}>
-            <IllustrationPlaceholder label="Illustration — agent combinations" ratio="4 / 3" />
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// CL6 — Mentorship ───────────────────────────────────────────────────────────
-
-function ClientMentorship() {
-  return (
-    <section className="bg-white px-5 md:px-12 py-20 md:py-28">
-      <div className="max-w-5xl mx-auto">
-        <motion.div {...fadeUp(0)} className="mb-10">
-          <Label>For teams</Label>
-          <SectionHeading size="md">Your team gets better.</SectionHeading>
-          <Divider />
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 mb-16">
-          <motion.div {...fadeUp(0.06)}>
-            <Body>
-              Juniors learn by working alongside real expertise.
-              Not approximations. Not averages. The actual thinking of people who have done this for decades.
-            </Body>
-          </motion.div>
-          <motion.div {...fadeUp(0.1)}>
-            <div className="flex flex-col gap-3">
-              {['The decisions being made', 'The trade-offs being weighed', 'The thinking in action'].map((item) => (
-                <div key={item} className="flex items-start gap-3">
-                  <Dot />
-                  <span style={{ fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.65 }}>
-                    {item}
-                  </span>
-                </div>
-              ))}
+            <div
+              className="flex flex-col gap-4"
+              style={{ fontFamily: 'var(--font-dmSans)', fontSize: '15px', fontWeight: 300, color: 'var(--mid)', lineHeight: 1.75 }}
+            >
+              <p>
+                Most real briefs need more than one perspective. A launch needs strategy, creative, and product thinking —
+                each pulling against the others.
+              </p>
+              <p>
+                In Genus, you can run multiple agents on the same brief and let the disagreements surface.
+                That&rsquo;s where the useful answer usually is.
+              </p>
             </div>
           </motion.div>
-        </div>
 
-        <motion.div {...fadeUp(0.12)}>
-          <p
-            style={{
-              fontFamily: 'var(--font-archivoblack)',
-              fontSize: 'clamp(22px, 3.5vw, 40px)',
-              color: 'var(--ink)',
-              letterSpacing: '-0.03em',
-              lineHeight: 1.1,
-            }}
-          >
-            This is how you
-            <br />
-            <span style={{ color: 'var(--yellow)' }}>scale taste.</span>
-          </p>
-        </motion.div>
+          <motion.div {...fadeUp(0.1)}>
+            <IllustrationPlaceholder
+              label="Illustration — three agents, one brief, visible disagreement"
+              ratio="4 / 3"
+            />
+          </motion.div>
+        </div>
       </div>
     </section>
   )
 }
 
-// CL7 — Integration ──────────────────────────────────────────────────────────
+// CL7 — Integration ───────────────────────────────────────────────────────────
 
 function ClientIntegration() {
   const tools = ['Slack', 'Notion', 'API']
-
   return (
     <section className="px-5 md:px-12 py-20 md:py-28" style={{ backgroundColor: 'var(--off)' }}>
       <div className="max-w-5xl mx-auto">
         <motion.div {...fadeUp(0)} className="mb-10">
-          <Label>Integration</Label>
+          <Label>Integrations</Label>
           <SectionHeading size="md">Works where you work.</SectionHeading>
           <Divider />
         </motion.div>
 
         <motion.div {...fadeUp(0.06)} className="max-w-lg mb-10">
           <Body>
-            Start inside Genus. Then extend into the tools your team already uses.
+            Start inside Genus. Extend into Slack, Notion, or your own tools when you&rsquo;re ready.
           </Body>
         </motion.div>
 
@@ -1267,7 +1783,7 @@ function ClientIntegration() {
                 border: '1px solid var(--rule)',
               }}
             >
-              {t === 'API' ? `${t} [PLACEHOLDER]` : t}
+              {t === 'API' ? 'API — [placeholder]' : t}
             </span>
           ))}
         </motion.div>
@@ -1276,7 +1792,7 @@ function ClientIntegration() {
   )
 }
 
-// CL8 — Client Close ─────────────────────────────────────────────────────────
+// CL8 — Client close ──────────────────────────────────────────────────────────
 
 function ClientClose() {
   return (
@@ -1302,7 +1818,7 @@ function ClientClose() {
 
           <Link
             href="/agents"
-            className="inline-flex items-center px-8 py-4 rounded-sm text-sm font-medium transition-opacity hover:opacity-90"
+            className="inline-flex items-center px-8 py-4 rounded-sm text-sm font-medium transition-opacity hover:opacity-90 mb-5"
             style={{
               fontFamily: 'var(--font-dmSans)',
               backgroundColor: 'var(--yellow)',
@@ -1311,6 +1827,18 @@ function ClientClose() {
           >
             Find your Genus &rarr;
           </Link>
+
+          <p
+            style={{
+              fontFamily: 'var(--font-dmSans)',
+              fontSize: '13px',
+              fontWeight: 300,
+              color: 'rgba(255,255,255,0.3)',
+              marginTop: '16px',
+            }}
+          >
+            Tell us what you&rsquo;re working on. We&rsquo;ll match you with the right agent — or build a shortlist — within a week.
+          </p>
         </motion.div>
       </div>
     </section>
